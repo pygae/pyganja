@@ -39,9 +39,13 @@ def generate_jinja_template(script_json, algebra='g3c'):
 
 
 def generate_notebook_js(script_json, algebra='g3c'):
+    dir_name = os.path.dirname(os.path.abspath(__file__))
+    ganja_filename = dir_name+'/static/ganja.js/ganja.js'
     if algebra == 'g3c':
-        js = """
-        require.config({paths: {Algebra: 'https://unpkg.com/ganja.js@1.0.99/ganja'}});
+        js = ""
+        with open(ganja_filename, 'r') as ganja_file:
+            js += ganja_file.read()
+        js += """
         function add_graph_to_notebook(Algebra){
             var output = Algebra(4,1,()=>{
               // When we get a file, we load and display.
