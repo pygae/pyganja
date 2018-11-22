@@ -27,5 +27,4 @@ python3 setup.py install
 ```
 
 # TODO
-This is still very much a work in progress, notebook support has not been tested properly and currently 
-it only handles conformal GA
+This is still very much a work in progress, currently it only handles conformal GA
