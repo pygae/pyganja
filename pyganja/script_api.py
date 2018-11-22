@@ -22,7 +22,10 @@ def generate_jinja_template(script_json, algebra='g3c'):
     if algebra == 'g3c':
         script_string = """
         Algebra(4,1,()=>{
-          document.body.appendChild(this.graph((""" + script_json + """).map(x=>x.length==32?new Element(x):x),{conformal:true,gl:true,grid:false}));
+          var canvas = this.graph((""" + script_json + """).map(x=>x.length==32?new Element(x):x),{conformal:true,gl:true,grid:false});
+          canvas.style.width = '100vw';
+          canvas.style.height = '100vh';
+          document.body.appendChild(canvas);
         });
         """
     else:
