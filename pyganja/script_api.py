@@ -5,7 +5,7 @@ import hashlib
 import time
 from multiprocessing import Process
 
-from IPython.display import Javascript
+from IPython.display import display, Javascript
 
 from .flask_server import *
 from .GanjaScene import GanjaScene
@@ -41,6 +41,7 @@ def generate_jinja_template(script_json, algebra='g3c'):
 def generate_notebook_js(script_json, algebra='g3c'):
     if algebra == 'g3c':
         js = """
+        require.config({paths: {Algebra: 'https://unpkg.com/ganja.js@1.0.99/ganja'}});
         function add_graph_to_notebook(Algebra){
             var output = Algebra(4,1,()=>{
               // When we get a file, we load and display.
@@ -87,7 +88,7 @@ def render_notebook_script(script_json, algebra='g3c'):
     are already in the browser!
     """
     js = generate_notebook_js(script_json, algebra=algebra)
-    Javascript(js)
+    display(Javascript(js))
 
 
 def render_cef_script(script_json="", script_tools=False):
