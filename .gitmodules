@@ -1,0 +1,3 @@
+[submodule "pyganja/static/ganja.js"]
+	path = pyganja/static/ganja.js
+	url = git@github.com:enkimute/ganja.js.git

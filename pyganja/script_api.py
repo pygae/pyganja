@@ -8,6 +8,7 @@ from multiprocessing import Process
 from IPython.display import Javascript
 
 from .flask_server import *
+from .GanjaScene import GanjaScene
 
 try:
     from .cefwindow import *
@@ -21,7 +22,7 @@ def generate_jinja_template(script_json, algebra='g3c'):
     if algebra == 'g3c':
         script_string = """
         Algebra(4,1,()=>{
-          document.body.appendChild(this.graph([""" + script_json + """],{conformal:true,gl:true,grid:false}));
+          document.body.appendChild(this.graph(""" + script_json + """,{conformal:true,gl:true,grid:false}));
         });
         """
     else:
@@ -88,7 +89,7 @@ def render_notebook_script(script_json, algebra='g3c'):
     Javascript(js)
 
 
-def render_script(script_json="", script_tools=False):
+def render_cef_script(script_json="", script_tools=False):
     # First save the script string as a template
     if script_json != "":
         fullname, filename, endpointname = generate_and_save_template(script_json)
@@ -125,5 +126,19 @@ def render_script(script_json="", script_tools=False):
                 os.remove(fullname)
 
 
-if __name__ == '__main__':
-    render_script()
+def nb_draw_objects(objects, color=int('AA000000', 16)):
+    if isinstance(objects, list):
+        sc = GanjaScene()
+        sc.add_objects(objects, color=color)
+        render_notebook_script(str(sc))
+    else:
+        raise ValueError('The input is not a list of objects')
+
+
+def draw_objects(objects, color=int('AA000000', 16)):
+    if isinstance(objects, list):
+        sc = GanjaScene()
+        sc.add_objects(objects, color=color)
+        render_cef_script(str(sc))
+    else:
+        raise ValueError('The input is not a list of objects')

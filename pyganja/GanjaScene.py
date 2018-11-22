@@ -24,8 +24,8 @@ class GanjaScene:
             except:
                 raise ValueError('Labels must be strings')
         self.internal_list.append(color)
-        for mv in mv_list:
-            self.internal_list.append([i for i in mv.value])
+        for mv_array in mv_list:
+            self.internal_list.append([i for i in mv_array])
 
     def __repr__(self):
         return json.dumps(self.internal_list)
