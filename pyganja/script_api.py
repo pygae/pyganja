@@ -22,16 +22,14 @@ def generate_jinja_template(script_json, algebra='g3c'):
     if algebra == 'g3c':
         script_string = """
         Algebra(4,1,()=>{
-          document.body.appendChild(this.graph(""" + script_json + """,{conformal:true,gl:true,grid:false}));
+          document.body.appendChild(this.graph((""" + script_json + """).map(x=>x.length==32?new Element(x):x),{conformal:true,gl:true,grid:false}));
         });
         """
     else:
         raise ValueError('Algebra not yet supported')
     s_start = """{% extends 'base.html' %}
-    {% block user_script %}
-    `"""
+    {% block user_script %}"""
     s_end = """
-    `
     {% endblock %}
     """
     return s_start + script_string + s_end
