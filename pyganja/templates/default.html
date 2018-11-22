@@ -2,6 +2,7 @@
 
 {% block user_script %}
 
+
 Algebra(4,1,()=>{
 
 // We start by defining a null basis, and upcasting for points
@@ -23,18 +24,24 @@ Algebra(4,1,()=>{
 // For line meet plane its a bit more involved.
   var lp = up(nino<<(P2&L^no));
 
+    var canvas = this.graph([
+          0x00FF0000, p, "s1",             // point
+          0xFF00FF,lp,"l&p",               // line intersect plane
+          0x0000FF,C1,"s&p",               // sphere meet plane
+          0x888800,C2,"s&l",               // sphere meet line
+          0x0088FF,C3,"s&s",               // sphere meet sphere
+          0x008800,C4,"s&c",               // sphere meet circle
+          0x880000,C5,"c&p",               // circle meet sphere
+          0,L,0,C,                         // line and circle
+          0xE0008800, P, P2,               // plane
+          0xE0FFFFFF, S, "s1", S2          // spheres
+      ],{conformal:true,gl:true,grid:true});
+
+  canvas.style.width = '100vw';
+  canvas.style.height = '100vh';
+
 // Graph the items. (hex numbers are html5 colors, two extra first bytes = alpha)
-  document.body.appendChild(this.graph([ 
-      0x00FF0000, p, "s1",             // point 
-      0xFF00FF,lp,"l&p",               // line intersect plane
-      0x0000FF,C1,"s&p",               // sphere meet plane
-      0x888800,C2,"s&l",               // sphere meet line
-      0x0088FF,C3,"s&s",               // sphere meet sphere
-      0x008800,C4,"s&c",               // sphere meet circle
-      0x880000,C5,"c&p",               // circle meet sphere
-      0,L,0,C,                         // line and circle
-      0xE0008800, P, P2,               // plane
-      0xE0FFFFFF, S, "s1", S2          // spheres
-  ],{conformal:true,gl:true,grid:true}));
+  document.body.appendChild(canvas);
+
 });
 {% endblock %}

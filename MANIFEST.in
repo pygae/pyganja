@@ -1,0 +1,3 @@
+include pyganja/templates/*.html
+include pyganja/static/ganja.js/*.js
+include pyganja/static/*.css

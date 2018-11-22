@@ -1,6 +1,7 @@
 
 import json
 
+
 class GanjaScene:
 
     def __init__(self):
