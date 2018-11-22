@@ -16,8 +16,8 @@ def run_cef_gui(url_target, title):
 
 
 def check_versions():
-    print("[cef_gui.py] CEF Python {ver}".format(ver=cef.__version__))
-    print("[cef_gui.py] Python {ver} {arch}".format(
+    print("[cefwindow.py] CEF Python {ver}".format(ver=cef.__version__))
+    print("[cefwindow.py] Python {ver} {arch}".format(
           ver=platform.python_version(), arch=platform.architecture()[0]))
     assert cef.__version__ >= "55.3", "CEF Python v55.3+ required to run this"
 
