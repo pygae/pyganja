@@ -11,8 +11,7 @@ setup(
     description='Python interface to ganja.js',
     include_package_data=True,
     install_requires = [
-            'Flask',
             'cefpython3',
-            'IPython',
+            'IPython'
     ],
 )

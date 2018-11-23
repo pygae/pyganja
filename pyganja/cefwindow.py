@@ -21,9 +21,3 @@ def check_versions():
           ver=platform.python_version(), arch=platform.architecture()[0]))
     assert cef.__version__ >= "55.3", "CEF Python v55.3+ required to run this"
 
-
-if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        run_cef_gui("localhost:5000/" + sys.argv[1], "pyganja")
-    else:
-        run_cef_gui("localhost:5000/", "pyganja")

@@ -1,21 +1,25 @@
 
 from __future__ import print_function
 
-import hashlib
-import time
-from multiprocessing import Process
-
 from IPython.display import display, Javascript
 
-from .flask_server import *
+import os
 from .GanjaScene import GanjaScene
+import base64
+from multiprocessing import Process
+
 
 try:
     from .cefwindow import *
 except:
     print('Failed to import cef_gui, cef functions will be unavailable')
 
-import urllib
+
+def html_to_data_uri(html):
+    html = html.encode("utf-8", "replace")
+    b64 = base64.b64encode(html).decode("utf-8", "replace")
+    ret = "data:text/html;base64,{data}".format(data=b64)
+    return ret
 
 
 def generate_jinja_template(script_json, algebra='g3c'):
@@ -38,13 +42,22 @@ def generate_jinja_template(script_json, algebra='g3c'):
     return s_start + script_string + s_end
 
 
-def generate_notebook_js(script_json, algebra='g3c'):
+def read_ganja():
     dir_name = os.path.dirname(os.path.abspath(__file__))
-    ganja_filename = dir_name+'/static/ganja.js/ganja.js'
+    ganja_filename = dir_name + '/static/ganja.js/ganja.js'
+    with open(ganja_filename, 'r') as ganja_file:
+        output = ganja_file.read()
+    return output
+
+
+def generate_notebook_js(script_json, algebra='g3c', grid=True):
+
     if algebra == 'g3c':
-        js = ""
-        with open(ganja_filename, 'r') as ganja_file:
-            js += ganja_file.read()
+        if grid:
+            gridstr = 'true'
+        else:
+            gridstr = 'false'
+        js = read_ganja()
         js += """
         function add_graph_to_notebook(Algebra){
             var output = Algebra(4,1,()=>{
@@ -55,7 +68,7 @@ def generate_notebook_js(script_json, algebra='g3c'):
                      var data = """ + script_json + """;
                      data = data.map(x=>x.length==32?new Element(x):x);
                   // add the graph to the page.
-                     canvas = this.graph(data,{gl:true,conformal:true,grid:true});
+                     canvas = this.graph(data,{gl:true,conformal:true,grid:"""+gridstr+"""});
                      canvas.options.h = h; canvas.options.p = p;
                   // make it big.
                      canvas.style.width = '50vw';
@@ -72,79 +85,69 @@ def generate_notebook_js(script_json, algebra='g3c'):
     return js
 
 
-def generate_and_save_template(script_json, algebra='g3c'):
-    # Convert json to html string
-    template_string = generate_jinja_template(script_json, algebra=algebra)
-
-    # Save with unique name based on hash
-    endpointname = hashlib.sha224(template_string.encode('utf-8')).hexdigest()
-    filename = endpointname + ".html"
-    dir_name = os.path.dirname(os.path.abspath(__file__))
-    fullname = dir_name + '/templates/' + filename
-    with open(fullname, 'w') as f_obj:
-        print(template_string, file=f_obj)
-    return fullname, filename, endpointname
-
-
-def render_notebook_script(script_json, algebra='g3c'):
+def generate_full_html(script_json, algebra='g3c', grid=True):
+    if grid:
+        gridstr = 'true'
+    else:
+        gridstr = 'false'
+    script_string = """
+            Algebra(4,1,()=>{
+              var canvas = this.graph((""" + script_json + """).map(x=>x.length==32?new Element(x):x),
+              {conformal:true,gl:true,grid:"""+gridstr+"""});
+              canvas.style.width = '100vw';
+              canvas.style.height = '100vh';
+              document.body.appendChild(canvas);
+            });
+            """
+    full_html = """<!DOCTYPE html>
+    <html lang="en" style="height:100%;">
+    <HEAD>
+        <meta charset="UTF-8">
+        <title>pyganja</title>
+        <link rel="stylesheet" href="static/pyganja.css">
+      <SCRIPT>""" + read_ganja() + """</SCRIPT>
+    </HEAD>
+    <BODY style="position:absolute; top:0; bottom:0; right:0; left:0; overflow:hidden;">
+    <SCRIPT>
+        """ + script_string + """
+    </SCRIPT>
+    </BODY>
+    </html>
     """
-    In a notebook we dont need to start a flask server or cefpython as we
+    return full_html
+
+
+def render_notebook_script(script_json, algebra='g3c', grid=True):
+    """
+    In a notebook we dont need to start cefpython as we
     are already in the browser!
     """
-    js = generate_notebook_js(script_json, algebra=algebra)
+    js = generate_notebook_js(script_json, algebra=algebra, grid=grid)
     display(Javascript(js))
 
 
-def render_cef_script(script_json="", script_tools=False):
-    # First save the script string as a template
-    if script_json != "":
-        fullname, filename, endpointname = generate_and_save_template(script_json)
-    else:
-        endpointname = ""
-
-    def run_cef_process():
-        if script_tools:
-            params = urllib.parse.urlencode({'show_tools': True})
-        else:
-            params = urllib.parse.urlencode({'show_tools': False})
-        final_url = "http://localhost:5000/" + endpointname + "?%s" % params
+def render_cef_script(script_json="", grid=True):
+    def render_script():
+        final_url = html_to_data_uri(generate_full_html(script_json, grid=grid))
         run_cef_gui(final_url, "pyganja")
-
-    try:
-        # Now run the flask server
-        server = Process(target=run_app)
-        cef_gui = Process(target=run_cef_process)
-        server.start()
-        # Wait a little to warm up
-        time.sleep(1)
-        cef_gui.start()
-        # Clean up our mess
-        cef_gui.join()
-        server.terminate()
-        server.join()
-
-        if script_json != "":
-            if os.path.isfile(fullname):
-                os.remove(fullname)
-    except:
-        if script_json != "":
-            if os.path.isfile(fullname):
-                os.remove(fullname)
+    p = Process(target=render_script)
+    p.start()
+    p.join()
 
 
-def nb_draw_objects(objects, color=int('AA000000', 16)):
+def nb_draw_objects(objects, color=int('AA000000', 16), grid=True):
     if isinstance(objects, list):
         sc = GanjaScene()
         sc.add_objects(objects, color=color)
-        render_notebook_script(str(sc))
+        render_notebook_script(str(sc), grid=grid)
     else:
         raise ValueError('The input is not a list of objects')
 
 
-def draw_objects(objects, color=int('AA000000', 16)):
+def draw_objects(objects, color=int('AA000000', 16), grid=True):
     if isinstance(objects, list):
         sc = GanjaScene()
         sc.add_objects(objects, color=color)
-        render_cef_script(str(sc))
+        render_cef_script(str(sc), grid=grid)
     else:
         raise ValueError('The input is not a list of objects')
