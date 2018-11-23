@@ -22,26 +22,6 @@ def html_to_data_uri(html):
     return ret
 
 
-def generate_jinja_template(script_json, algebra='g3c'):
-    if algebra == 'g3c':
-        script_string = """
-        Algebra(4,1,()=>{
-          var canvas = this.graph((""" + script_json + """).map(x=>x.length==32?new Element(x):x),{conformal:true,gl:true,grid:false});
-          canvas.style.width = '100vw';
-          canvas.style.height = '100vh';
-          document.body.appendChild(canvas);
-        });
-        """
-    else:
-        raise ValueError('Algebra not yet supported')
-    s_start = """{% extends 'base.html' %}
-    {% block user_script %}"""
-    s_end = """
-    {% endblock %}
-    """
-    return s_start + script_string + s_end
-
-
 def read_ganja():
     dir_name = os.path.dirname(os.path.abspath(__file__))
     ganja_filename = dir_name + '/static/ganja.js/ganja.js'
@@ -50,13 +30,14 @@ def read_ganja():
     return output
 
 
-def generate_notebook_js(script_json, algebra='g3c', grid=True):
+def generate_notebook_js(script_json, algebra='g3c', grid=True, scale=1.0):
 
     if algebra == 'g3c':
         if grid:
             gridstr = 'true'
         else:
             gridstr = 'false'
+        scalestr = str(scale)
         js = read_ganja()
         js += """
         function add_graph_to_notebook(Algebra){
@@ -68,7 +49,7 @@ def generate_notebook_js(script_json, algebra='g3c', grid=True):
                      var data = """ + script_json + """;
                      data = data.map(x=>x.length==32?new Element(x):x);
                   // add the graph to the page.
-                     canvas = this.graph(data,{gl:true,conformal:true,grid:"""+gridstr+"""});
+                     canvas = this.graph(data,{gl:true,conformal:true,grid:"""+gridstr+""",scale:"""+scalestr+"""});
                      canvas.options.h = h; canvas.options.p = p;
                   // make it big.
                      canvas.style.width = '50vw';
@@ -85,15 +66,16 @@ def generate_notebook_js(script_json, algebra='g3c', grid=True):
     return js
 
 
-def generate_full_html(script_json, algebra='g3c', grid=True):
+def generate_full_html(script_json, algebra='g3c', grid=True, scale=1.0):
     if grid:
         gridstr = 'true'
     else:
         gridstr = 'false'
+    scalestr = str(scale)
     script_string = """
             Algebra(4,1,()=>{
               var canvas = this.graph((""" + script_json + """).map(x=>x.length==32?new Element(x):x),
-              {conformal:true,gl:true,grid:"""+gridstr+"""});
+              {conformal:true,gl:true,grid:"""+gridstr+""",scale:"""+scalestr+"""});
               canvas.style.width = '100vw';
               canvas.style.height = '100vh';
               document.body.appendChild(canvas);
@@ -117,37 +99,37 @@ def generate_full_html(script_json, algebra='g3c', grid=True):
     return full_html
 
 
-def render_notebook_script(script_json, algebra='g3c', grid=True):
+def render_notebook_script(script_json, algebra='g3c', grid=True, scale=1.0):
     """
     In a notebook we dont need to start cefpython as we
     are already in the browser!
     """
-    js = generate_notebook_js(script_json, algebra=algebra, grid=grid)
+    js = generate_notebook_js(script_json, algebra=algebra, grid=grid, scale=scale)
     display(Javascript(js))
 
 
-def render_cef_script(script_json="", grid=True):
+def render_cef_script(script_json="", grid=True, scale=1.0):
     def render_script():
-        final_url = html_to_data_uri(generate_full_html(script_json, grid=grid))
+        final_url = html_to_data_uri(generate_full_html(script_json, grid=grid, scale=scale))
         run_cef_gui(final_url, "pyganja")
     p = Process(target=render_script)
     p.start()
     p.join()
 
 
-def nb_draw_objects(objects, color=int('AA000000', 16), grid=True):
+def nb_draw_objects(objects, color=int('AA000000', 16), grid=True, scale=1.0):
     if isinstance(objects, list):
         sc = GanjaScene()
         sc.add_objects(objects, color=color)
-        render_notebook_script(str(sc), grid=grid)
+        render_notebook_script(str(sc), grid=grid, scale=scale)
     else:
         raise ValueError('The input is not a list of objects')
 
 
-def draw_objects(objects, color=int('AA000000', 16), grid=True):
+def draw_objects(objects, color=int('AA000000', 16), grid=True, scale=1.0):
     if isinstance(objects, list):
         sc = GanjaScene()
         sc.add_objects(objects, color=color)
-        render_cef_script(str(sc), grid=grid)
+        render_cef_script(str(sc), grid=grid, scale=scale)
     else:
         raise ValueError('The input is not a list of objects')
