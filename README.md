@@ -3,8 +3,7 @@ Visualisation library for geometric algebra with cefpython and ganja.js
 
 This is a module for visualing Geometric Algebra from scripts and also from jupyter notebooks, 
 it relies on [ganja.js](https://github.com/enkimute/ganja.js) to render Geometric Algebra objects. 
-If you are calling its api from a script it will render them in a cefpython window pointing
-at a local flask server, or if you are in a notebook it can simply render in the notebook itself.
+If you are calling its api from a script it will render them in a cefpython window or if you are in a notebook it can simply render in the notebook itself.
 
 # Use
 This library is not specifically tied to the [clifford](https://github.com/pygae/clifford) library 
