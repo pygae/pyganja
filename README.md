@@ -13,7 +13,7 @@ but is designed to work well with it. An example of the syntax that you would us
 from clifford.tools.g3c import random_line
 from pyganja import *
 
-draw_objects([random_line().value for i in range(10)])
+draw_objects([random_line() for i in range(10)])
 ```
 
 This would spawn a cefpython window displaying the random lines that you have drawn.
