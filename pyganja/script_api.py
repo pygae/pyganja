@@ -36,7 +36,12 @@ def generate_notebook_js(script_json, layout, grid=True, scale=1.0):
     q=(layout.sig<0).sum()
 
     sig = '%i,%i'%(p,q)
-    print(sig)
+    mv_length = str(2**layout.dims)
+    
+    # not the best way to test conformal, as it prevents non-euclidean  geometry
+    conformal = False
+    if q!=0:
+        conformal=True
 
     if sig in ['4,1','3,0','3,1','2,0']:
         if grid:
@@ -51,11 +56,11 @@ def generate_notebook_js(script_json, layout, grid=True, scale=1.0):
               // When we get a file, we load and display.
                 var canvas;
                 var h=0, p=0;
-                  // convert arrays of 32 floats back to CGA elements.     
+                  // convert arrays of floats back to CGA elements.     
                      var data = """ + script_json + """;
-                     data = data.map(x=>x.length==32?new Element(x):x);
+                     data = data.map(x=>x.length=="""+mv_length+"""?new Element(x):x);
                   // add the graph to the page.
-                     canvas = this.graph(data,{gl:true,conformal:true,grid:"""+gridstr+""",scale:"""+scalestr+"""});
+                     canvas = this.graph(data,{gl:true,conformal:"""+str(conformal).lower()+""",grid:"""+gridstr+""",scale:"""+scalestr+"""});
                      canvas.options.h = h; canvas.options.p = p;
                   // make it big.
                      canvas.style.width = '50vw';
