@@ -30,9 +30,20 @@ def read_ganja():
     return output
 
 
-def generate_notebook_js(script_json, algebra='g3c', grid=True, scale=1.0):
+def generate_notebook_js(script_json, layout, grid=True, scale=1.0):
+    
+    p=(layout.sig>0).sum()
+    q=(layout.sig<0).sum()
 
-    if algebra == 'g3c':
+    sig = '%i,%i'%(p,q)
+    mv_length = str(2**layout.dims)
+    
+    # not the best way to test conformal, as it prevents non-euclidean  geometry
+    conformal = False
+    if q!=0:
+        conformal=True
+
+    if sig in ['4,1','3,0','3,1','2,0']:
         if grid:
             gridstr = 'true'
         else:
@@ -41,15 +52,15 @@ def generate_notebook_js(script_json, algebra='g3c', grid=True, scale=1.0):
         js = read_ganja()
         js += """
         function add_graph_to_notebook(Algebra){
-            var output = Algebra(4,1,()=>{
+            var output = Algebra("""+sig+""",()=>{
               // When we get a file, we load and display.
                 var canvas;
                 var h=0, p=0;
-                  // convert arrays of 32 floats back to CGA elements.     
+                  // convert arrays of floats back to CGA elements.     
                      var data = """ + script_json + """;
-                     data = data.map(x=>x.length==32?new Element(x):x);
+                     data = data.map(x=>x.length=="""+mv_length+"""?new Element(x):x);
                   // add the graph to the page.
-                     canvas = this.graph(data,{gl:true,conformal:true,grid:"""+gridstr+""",scale:"""+scalestr+"""});
+                     canvas = this.graph(data,{gl:true,conformal:"""+str(conformal).lower()+""",grid:"""+gridstr+""",scale:"""+scalestr+"""});
                      canvas.options.h = h; canvas.options.p = p;
                   // make it big.
                      canvas.style.width = '50vw';
@@ -99,12 +110,12 @@ def generate_full_html(script_json, algebra='g3c', grid=True, scale=1.0):
     return full_html
 
 
-def render_notebook_script(script_json, algebra='g3c', grid=True, scale=1.0):
+def render_notebook_script(script_json, layout, grid=True, scale=1.0):
     """
     In a notebook we dont need to start cefpython as we
     are already in the browser!
     """
-    js = generate_notebook_js(script_json, algebra=algebra, grid=grid, scale=scale)
+    js = generate_notebook_js(script_json, layout=layout, grid=grid, scale=scale)
     display(Javascript(js))
 
 
@@ -117,11 +128,12 @@ def render_cef_script(script_json="", grid=True, scale=1.0):
     p.join()
 
 
-def nb_draw_objects(objects, color=int('AA000000', 16), grid=True, scale=1.0):
+def draw(objects, color=int('AA000000', 16), grid=True, scale=1.0):
     if isinstance(objects, list):
         sc = GanjaScene()
         sc.add_objects(objects, color=color)
-        render_notebook_script(str(sc), grid=grid, scale=scale)
+        layout= objects[0].layout # not the best
+        render_notebook_script(str(sc), layout=layout, grid=grid, scale=scale)
     else:
         raise ValueError('The input is not a list of objects')
 
