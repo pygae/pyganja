@@ -22,8 +22,6 @@ This would spawn a cefpython window displaying the random lines that you have dr
 ```
 git clone git@github.com:hugohadfield/pyganja.git
 cd pyganja
-git submodule init
-git submodule update
 python3 setup.py install
 ```
 
