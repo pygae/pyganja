@@ -1,9 +1,28 @@
-from setuptools import setup
+from setuptools import setup, find_packages
+import subprocess
+from distutils.command.install import install
+from distutils.command.build import build
+from os import path
+
+class build_with_submodules(build):
+    def run(self):
+        if path.exists('.git'):
+            subprocess.check_call(['git', 'submodule', 'init'])
+            subprocess.check_call(['git', 'submodule', 'update'])
+        build.run(self)
+
+class install_with_submodules(install):
+    def run(self):
+        if path.exists('.git'):
+            subprocess.check_call(['git', 'submodule', 'init'])
+            subprocess.check_call(['git', 'submodule', 'update'])
+        install.run(self)
 
 setup(
+    cmdclass={"build": build_with_submodules, "install": install_with_submodules},
     name='pyganja',
     version='0.0.1',
-    packages=['pyganja'],
+    packages=find_packages(),
     url='https://github.com/hugohadfield/pyganja',
     license='',
     author='Hugo Hadfield',
