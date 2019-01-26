@@ -177,7 +177,7 @@ def draw(objects, color=int('AA000000', 16), sig=None, grid=True, scale=1.0, new
     if isinstance(objects, list):
         sc = GanjaScene()
         sc.add_objects(objects, color=color, static=static)
-        render_scene_string_appropriately(str(sc)
+        render_scene_string_appropriately(str(sc))
     elif isinstance(objects, str):
         render_scene_string_appropriately(objects)
     elif isinstance(objects, GanjaScene):
