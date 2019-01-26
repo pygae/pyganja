@@ -1,9 +1,6 @@
 
 from __future__ import print_function
 
-from IPython.display import display, Javascript
-from IPython import get_ipython
-
 import os
 from .GanjaScene import GanjaScene
 import base64
@@ -11,12 +8,22 @@ from multiprocessing import Process
 import hashlib
 import webbrowser
 
+CEFAVAILABLE = False
 try:
     from .cefwindow import *
+    CEFAVAILABLE = True
 except:
     print('Failed to import cef_gui, cef functions will be unavailable')
+    
+JUPYTERAVAILABLE = False
+try:
+    from IPython.display import display, Javascript
+    from IPython import get_ipython
+    JUPYTERAVAILABLE = True
+except:
+    print('Failed to import ipython, notebook rendering will be unavailable')   
 
-
+    
 def html_to_data_uri(html):
     html = html.encode("utf-8", "replace")
     b64 = base64.b64encode(html).decode("utf-8", "replace")
@@ -182,13 +189,25 @@ def isnotebook():
 
 def draw(objects, color=int('AA000000', 16), sig=None, grid=True, scale=1.0, new_window=False, static=False, gl=True):
     def render_scene_string_appropriately(scene_string):
-        if isnotebook():
-            if not new_window:
-                render_notebook_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
+        if JUPYTERAVAILABLE:
+            if isnotebook():
+                if not new_window:
+                    render_notebook_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
+                else:
+                    if CEFAVAILABLE:
+                        render_cef_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
+                    else:
+                        render_browser_script(str(gs), sig=sig, grid=grid, scale=scale, gl=gl)
             else:
-                render_cef_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
+                if CEFAVAILABLE:
+                    render_cef_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
+                else:
+                    render_browser_script(str(gs), sig=sig, grid=grid, scale=scale, gl=gl)
         else:
-            render_cef_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
+            if CEFAVAILABLE:
+                render_cef_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
+            else:
+                render_browser_script(str(gs), sig=sig, grid=grid, scale=scale, gl=gl)
     if isinstance(objects, list):
         sc = GanjaScene()
         sc.add_objects(objects, color=color, static=static)
