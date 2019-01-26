@@ -138,7 +138,7 @@ def render_browser_script(script_json, sig=None, grid=True, scale=1.0, gl=True, 
     If we have no jupyter and no cefpython we will be forced to generate html
     and render that in the users browser
     """
-    html_code = generate_full_html(str(gs))
+    html_code = generate_full_html(script_json)
     if filename is None:
         hash_object = hashlib.md5(html_code).encode()
         filename = hash_object.hexdigest() + '.html'
