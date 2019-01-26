@@ -187,7 +187,7 @@ def isnotebook():
         return False      # Probably standard Python interpreter
 
 
-def draw(objects, color=int('AA000000', 16), sig=None, grid=True, scale=1.0, new_window=False, static=False, gl=True):
+def draw(objects, color=int('AA000000', 16), sig=None, grid=True, scale=1.0, browser_window=False, new_window=False, static=False, gl=True):
     def render_scene_string_appropriately(scene_string):
         if JUPYTERAVAILABLE:
             if isnotebook():
@@ -195,17 +195,26 @@ def draw(objects, color=int('AA000000', 16), sig=None, grid=True, scale=1.0, new
                     render_notebook_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
                 else:
                     if CEFAVAILABLE:
-                        render_cef_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
+                        if browser_window:
+                            render_browser_script(str(gs), sig=sig, grid=grid, scale=scale, gl=gl)
+                        else:
+                            render_cef_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
                     else:
                         render_browser_script(str(gs), sig=sig, grid=grid, scale=scale, gl=gl)
             else:
                 if CEFAVAILABLE:
-                    render_cef_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
+                    if browser_window:
+                        render_browser_script(str(gs), sig=sig, grid=grid, scale=scale, gl=gl)
+                    else:
+                        render_cef_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
                 else:
                     render_browser_script(str(gs), sig=sig, grid=grid, scale=scale, gl=gl)
         else:
             if CEFAVAILABLE:
-                render_cef_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
+                if browser_window:
+                    render_browser_script(str(gs), sig=sig, grid=grid, scale=scale, gl=gl)
+                else:
+                    render_cef_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
             else:
                 render_browser_script(str(gs), sig=sig, grid=grid, scale=scale, gl=gl)
     if isinstance(objects, list):
