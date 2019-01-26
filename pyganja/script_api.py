@@ -8,7 +8,8 @@ import os
 from .GanjaScene import GanjaScene
 import base64
 from multiprocessing import Process
-
+import hashlib
+import webbrowser
 
 try:
     from .cefwindow import *
@@ -131,7 +132,21 @@ def generate_full_html(script_json, sig=None, grid=True, scale=1.0, gl=True):
     else:
         raise ValueError('Algebra not yet supported')
 
+        
+def render_browser_script(script_json, sig=None, grid=True, scale=1.0, gl=True, filename=None):
+    """"
+    If we have no jupyter and no cefpython we will be forced to generate html
+    and render that in the users browser
+    """"
+    html_code = generate_full_html(str(gs))
+    if filename is None:
+        hash_object = hashlib.md5(html_code).encode()
+        filename = hash_object.hexdigest() + '.html'
+    with open(filename,'w') as fo:
+        print(html_code,file=fo)
+    webbrowser.open(filename)
 
+    
 def render_notebook_script(script_json, sig=None, grid=True, scale=1.0, gl=True):
     """
     In a notebook we dont need to start cefpython as we
