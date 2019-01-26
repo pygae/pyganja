@@ -8,7 +8,7 @@ class GanjaScene:
         self.internal_list = []
         self.mv_length = 32
 
-    def add_object(self, mv_array, color=int('AA000000', 16), label=None, static=True):
+    def add_object(self, mv_array, color=int('AA000000', 16), label=None, static=False):
         if label is not None:
             try:
                 assert isinstance(label, str)
@@ -22,7 +22,7 @@ class GanjaScene:
         else:
             self.internal_list.append([i for i in mv_array])
 
-    def add_objects(self, mv_list, color=int('AA000000', 16), label=None, static=True):
+    def add_objects(self, mv_list, color=int('AA000000', 16), label=None, static=False):
         if label is not None:
             try:
                 assert isinstance(label, str)
