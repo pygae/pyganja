@@ -166,15 +166,21 @@ def isnotebook():
 
 
 def draw(objects, color=int('AA000000', 16), sig=None, grid=True, scale=1.0, new_window=False, static=False, gl=True):
+    def render_scene_string_appropriately(scene_string):
+        if isnotebook():
+            if not new_window:
+                render_notebook_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
+            else:
+                render_cef_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
+        else:
+            render_cef_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
     if isinstance(objects, list):
         sc = GanjaScene()
         sc.add_objects(objects, color=color, static=static)
-        if isnotebook():
-            if not new_window:
-                render_notebook_script(str(sc), sig=sig, grid=grid, scale=scale, gl=gl)
-            else:
-                render_cef_script(str(sc), sig=sig, grid=grid, scale=scale, gl=gl)
-        else:
-            render_cef_script(str(sc), sig=sig, grid=grid, scale=scale, gl=gl)
+        render_scene_string_appropriately(str(sc))
+    elif isinstance(objects, str):
+        render_scene_string_appropriately(objects)
+    elif isinstance(objects, GanjaScene):
+        render_scene_string_appropriately(str(objects))
     else:
-        raise ValueError('The input is not a list of objects')
+        raise ValueError('The input is not a list of objects or ganja scene')
