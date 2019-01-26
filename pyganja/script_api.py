@@ -165,7 +165,7 @@ def isnotebook():
         return False      # Probably standard Python interpreter
 
 
-def draw(objects, color=int('AA000000', 16), sig=None, grid=True, scale=1.0, new_window=False, static=True, gl=True):
+def draw(objects, color=int('AA000000', 16), sig=None, grid=True, scale=1.0, new_window=False, static=False, gl=True):
     if isinstance(objects, list):
         sc = GanjaScene()
         sc.add_objects(objects, color=color, static=static)
