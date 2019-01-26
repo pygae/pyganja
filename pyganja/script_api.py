@@ -196,27 +196,27 @@ def draw(objects, color=int('AA000000', 16), sig=None, grid=True, scale=1.0, bro
                 else:
                     if CEFAVAILABLE:
                         if browser_window:
-                            render_browser_script(str(gs), sig=sig, grid=grid, scale=scale, gl=gl)
+                            render_browser_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
                         else:
                             render_cef_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
                     else:
-                        render_browser_script(str(gs), sig=sig, grid=grid, scale=scale, gl=gl)
+                        render_browser_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
             else:
                 if CEFAVAILABLE:
                     if browser_window:
-                        render_browser_script(str(gs), sig=sig, grid=grid, scale=scale, gl=gl)
+                        render_browser_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
                     else:
                         render_cef_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
                 else:
-                    render_browser_script(str(gs), sig=sig, grid=grid, scale=scale, gl=gl)
+                    render_browser_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
         else:
             if CEFAVAILABLE:
                 if browser_window:
-                    render_browser_script(str(gs), sig=sig, grid=grid, scale=scale, gl=gl)
+                    render_browser_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
                 else:
                     render_cef_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
             else:
-                render_browser_script(str(gs), sig=sig, grid=grid, scale=scale, gl=gl)
+                render_browser_script(scene_string, sig=sig, grid=grid, scale=scale, gl=gl)
     if isinstance(objects, list):
         sc = GanjaScene()
         sc.add_objects(objects, color=color, static=static)
