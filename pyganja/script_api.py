@@ -72,7 +72,7 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
                      var data = """ + script_json + """;
                      data = data.map(x=>x.length=="""+mv_length+"""?new Element(x):x);
                   // add the graph to the page.
-                     canvas = this.graph(data,{gl:"""+str(gl).lower()+""",conformal:"""+conformal+""",grid:"""+gridstr+""",scale:"""+scalestr+"""});
+                     canvas = this.graph(data,{gl:"""+str(gl).lower()+""",conformal:"""+conformal+""",grid:"""+gridstr+""",scale:"""+scalestr+""",useUnnaturalLineDisplayForPointPairs:true});
                      canvas.options.h = h; canvas.options.p = p;
                   // make it big.
                      canvas.style.width = '50vw';
@@ -115,7 +115,7 @@ def generate_full_html(script_json, sig=None, grid=True, scale=1.0, gl=True):
         script_string = """
                 Algebra("""+sig_short+""",()=>{
                   var canvas = this.graph((""" + script_json + """).map(x=>x.length=="""+mv_length+"""?new Element(x):x),
-                  {conformal:"""+conformal+""",gl:"""+str(gl).lower()+""",grid:"""+gridstr+""",scale:"""+scalestr+"""});
+                  {conformal:"""+conformal+""",gl:"""+str(gl).lower()+""",grid:"""+gridstr+""",scale:"""+scalestr+""",useUnnaturalLineDisplayForPointPairs:true});
                   canvas.style.width = '100vw';
                   canvas.style.height = '100vh';
                   document.body.appendChild(canvas);
