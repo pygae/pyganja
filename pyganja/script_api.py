@@ -81,6 +81,20 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
                 }
             );
             element.append(output);
+
+            var a = document.createElement("SAVE"); 
+            var t = document.createTextNode("SAVE");
+            a.style.background = "cyan";
+            a.appendChild(t);
+            function screenshot(){
+                  //output.width = 1920;  output.height = 1080; 
+                  output.update(output.value);  
+                  var url = output.toDataURL(); 
+                  window.open(url, '_blank');
+              }
+              a.onclick = screenshot
+              var butnelem = element.append(a);
+
         }
         require(['Algebra'],function(Algebra){add_graph_to_notebook(Algebra)});
         """
