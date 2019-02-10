@@ -14,6 +14,20 @@ class TestCEFDrawing(unittest.TestCase):
         print(gs)
 
 
+class TestCGADrawing(unittest.TestCase):
+    def test_pyganja_facet(self):
+        from clifford.tools.g3c import random_conformal_point
+        from pyganja import GanjaScene
+        gs = GanjaScene()
+        point_list = [random_conformal_point() for i in range(3)]
+        gs.add_objects(point_list)
+        gs.add_facet(point_list)
+        point_list = [random_conformal_point() for i in range(3)]
+        gs.add_objects(point_list)
+        gs.add_facet(point_list,color=int('AAFF0000',16))
+        draw(gs, scale=0.05)
+
+
 class TestG3Drawing(unittest.TestCase):
     def test_draw_points(self):
         from clifford.tools.g3 import random_euc_mv
