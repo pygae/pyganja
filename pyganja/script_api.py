@@ -72,7 +72,7 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
                      var data = """ + script_json + """;
                      data = data.map(x=>x.length=="""+mv_length+"""?new Element(x):x);
                   // add the graph to the page.
-                     canvas = this.graph(data,{gl:"""+str(gl).lower()+""",conformal:"""+conformal+""",grid:"""+gridstr+""",scale:"""+scalestr+"""});
+                     canvas = this.graph(data,{gl:"""+str(gl).lower()+""",conformal:"""+conformal+""",grid:"""+gridstr+""",scale:"""+scalestr+""",useUnnaturalLineDisplayForPointPairs:true});
                      canvas.options.h = h; canvas.options.p = p;
                   // make it big.
                      canvas.style.width = '50vw';
@@ -81,6 +81,20 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
                 }
             );
             element.append(output);
+
+            var a = document.createElement("SAVE"); 
+            var t = document.createTextNode("SAVE");
+            a.style.background = "cyan";
+            a.appendChild(t);
+            function screenshot(){
+                  //output.width = 1920;  output.height = 1080; 
+                  output.update(output.value);  
+                  var url = output.toDataURL(); 
+                  window.open(url, '_blank');
+              }
+              a.onclick = screenshot
+              var butnelem = element.append(a);
+
         }
         require(['Algebra'],function(Algebra){add_graph_to_notebook(Algebra)});
         """
@@ -115,7 +129,7 @@ def generate_full_html(script_json, sig=None, grid=True, scale=1.0, gl=True):
         script_string = """
                 Algebra("""+sig_short+""",()=>{
                   var canvas = this.graph((""" + script_json + """).map(x=>x.length=="""+mv_length+"""?new Element(x):x),
-                  {conformal:"""+conformal+""",gl:"""+str(gl).lower()+""",grid:"""+gridstr+""",scale:"""+scalestr+"""});
+                  {conformal:"""+conformal+""",gl:"""+str(gl).lower()+""",grid:"""+gridstr+""",scale:"""+scalestr+""",useUnnaturalLineDisplayForPointPairs:true});
                   canvas.style.width = '100vw';
                   canvas.style.height = '100vh';
                   document.body.appendChild(canvas);
