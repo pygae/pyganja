@@ -35,6 +35,16 @@ class GanjaScene:
             facet_list.append([i for i in mv_array])
         self.internal_list.append(facet_list)
 
+    def add_facets(self, mv_list, color=int('AA000000', 16), label=None, static=False):
+        if label is not None:
+            try:
+                assert isinstance(label, str)
+                self.internal_list.append(label)
+            except:
+                raise ValueError('Labels must be strings')
+        for mv_array in mv_list:
+            self.add_facet(mv_array,color=color, label=label, static=static)
+
     def add_objects(self, mv_list, color=int('AA000000', 16), label=None, static=False):
         if label is not None:
             try:
