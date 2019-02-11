@@ -1,5 +1,6 @@
 
 import json
+import enum
 
 
 class GanjaScene:
@@ -16,7 +17,10 @@ class GanjaScene:
             except:
                 raise ValueError('Labels must be strings')
         self.mv_length = len(mv_array)
-        self.internal_list.append(color)
+        if isinstance(color, enum.Enum):
+            self.internal_list.append(color.value)
+        else:
+            self.internal_list.append(color)
         if static:
             self.internal_list.append({'data': [[i for i in mv_array]]})
         else:
@@ -29,7 +33,10 @@ class GanjaScene:
                 self.internal_list.append(label)
             except:
                 raise ValueError('Labels must be strings')
-        self.internal_list.append(color)
+        if isinstance(color, enum.Enum):
+            self.internal_list.append(color.value)
+        else:
+            self.internal_list.append(color)
         facet_list = []
         for mv_array in mv_list:
             facet_list.append([i for i in mv_array])
@@ -52,7 +59,10 @@ class GanjaScene:
                 self.internal_list.append(label)
             except:
                 raise ValueError('Labels must be strings')
-        self.internal_list.append(color)
+        if isinstance(color, enum.Enum):
+            self.internal_list.append(color.value)
+        else:
+            self.internal_list.append(color)
         static_list = []
         self.mv_length = len(mv_list[0])
         for mv_array in mv_list:

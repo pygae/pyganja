@@ -5,7 +5,7 @@ from pyganja import *
 class TestCEFDrawing(unittest.TestCase):
     def test_draw_lines(self):
         from clifford.tools.g3c import random_line
-        draw([random_line() for i in range(10)], static=True)
+        draw([random_line() for i in range(10)], static=True, color=Color.RED)
 
     def test_print_scene(self):
         from clifford.tools.g3c import random_line
