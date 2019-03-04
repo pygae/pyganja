@@ -10,12 +10,6 @@ class GanjaScene:
         self.mv_length = 32
 
     def add_object(self, mv_array, color=int('AA000000', 16), label=None, static=False):
-        if label is not None:
-            try:
-                assert isinstance(label, str)
-                self.internal_list.append(label)
-            except:
-                raise ValueError('Labels must be strings')
         self.mv_length = len(mv_array)
         if isinstance(color, enum.Enum):
             self.internal_list.append(color.value)
@@ -25,14 +19,14 @@ class GanjaScene:
             self.internal_list.append({'data': [[i for i in mv_array]]})
         else:
             self.internal_list.append([i for i in mv_array])
-
-    def add_facet(self, mv_list, color=int('AA000000', 16), label=None, static=False):
         if label is not None:
             try:
                 assert isinstance(label, str)
                 self.internal_list.append(label)
             except:
                 raise ValueError('Labels must be strings')
+
+    def add_facet(self, mv_list, color=int('AA000000', 16), label=None, static=False):
         if isinstance(color, enum.Enum):
             self.internal_list.append(color.value)
         else:
@@ -40,25 +34,28 @@ class GanjaScene:
         facet_list = []
         for mv_array in mv_list:
             facet_list.append([i for i in mv_array])
-        self.internal_list.append(facet_list)
+        if static:
+            self.internal_list.append({'data': [facet_list]})
+        else:
+            self.internal_list.append(facet_list)
+        if label is not None:
+            try:
+                assert isinstance(label, str)
+                self.internal_list.append(label)
+            except:
+                raise ValueError('Labels must be strings')
 
     def add_facets(self, mv_list, color=int('AA000000', 16), label=None, static=False):
-        if label is not None:
-            try:
-                assert isinstance(label, str)
-                self.internal_list.append(label)
-            except:
-                raise ValueError('Labels must be strings')
         for mv_array in mv_list:
             self.add_facet(mv_array,color=color, label=label, static=static)
-
-    def add_objects(self, mv_list, color=int('AA000000', 16), label=None, static=False):
         if label is not None:
             try:
                 assert isinstance(label, str)
                 self.internal_list.append(label)
             except:
                 raise ValueError('Labels must be strings')
+
+    def add_objects(self, mv_list, color=int('AA000000', 16), label=None, static=False):
         if isinstance(color, enum.Enum):
             self.internal_list.append(color.value)
         else:
@@ -72,6 +69,12 @@ class GanjaScene:
                 self.internal_list.append([i for i in mv_array])
         if static:
             self.internal_list.append({'data': static_list})
+        if label is not None:
+            try:
+                assert isinstance(label, str)
+                self.internal_list.append(label)
+            except:
+                raise ValueError('Labels must be strings')
 
     def __repr__(self):
         new_str = str.replace(json.dumps(self.internal_list), '''"data": ''', 'data:')
