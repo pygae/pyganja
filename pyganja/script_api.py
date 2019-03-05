@@ -64,7 +64,7 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
         js = read_ganja()
         js += """
         function add_graph_to_notebook(Algebra){
-            var output = Algebra("""+sig_short+""",()=>{
+            var output = Algebra({p:"""+p+""",q:"""+q+""",baseType:Float64Array},()=>{
               // When we get a file, we load and display.
                 var canvas;
                 var h=0, p=0;
