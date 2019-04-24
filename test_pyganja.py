@@ -20,14 +20,15 @@ class TestCGADrawing(unittest.TestCase):
         from pyganja import GanjaScene
         gs = GanjaScene()
         point_list = [random_conformal_point() for i in range(3)]
-        gs.add_objects(point_list)
+        #gs.add_objects(point_list)
         gs.add_facet(point_list)
         point_list = [random_conformal_point() for i in range(3)]
-        gs.add_objects(point_list)
-        gs.add_facet(point_list,color=int('AAFF0000',16))
+        #gs.add_objects(point_list)
+        #gs.add_facet(point_list,color=int('AAFF0000',16))
         facet_list = [[random_conformal_point() for i in range(3)] for i in range(10)]
-        gs.add_facets(facet_list,color=int('AA0000FF',16))
-        draw(gs, scale=0.05)
+        #gs.add_facets(facet_list,color=int('AA0000FF',16))
+        draw(gs, scale=0.05, browser_window=True)
+        print(gs)
 
 
 class TestG3Drawing(unittest.TestCase):
