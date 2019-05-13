@@ -240,4 +240,7 @@ def draw(objects, color=int('AA000000', 16), sig=None, grid=True, scale=1.0, bro
     elif isinstance(objects, GanjaScene):
         render_scene_string_appropriately(str(objects))
     else:
-        raise ValueError('The input is not a list of objects or ganja scene')
+        try:
+            render_scene_string_appropriately([i for i in objects])
+        except:
+            raise ValueError('The input cannot be interpreted, it is not a list of objects or ganja scene')
