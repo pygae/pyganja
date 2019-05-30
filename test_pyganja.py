@@ -42,5 +42,15 @@ class TestG3Drawing(unittest.TestCase):
         render_cef_script(str(gs), sig=layout.sig, grid=True, scale=1.0, gl=False)
 
 
+class TestGanjaSceneOps(unittest.TestCase):
+    def test_scene_addition(self):
+        from clifford.tools.g3c import random_line, random_circle
+        a = GanjaScene()
+        a.add_objects([random_line() for i in range(10)], color=Color.RED)
+        b = GanjaScene()
+        b.add_objects([random_circle() for i in range(10)], color=Color.BLUE)
+        draw(a + b, scale=0.01)
+
+
 if __name__ == '__main__':
     unittest.main()

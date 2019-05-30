@@ -241,6 +241,9 @@ def draw(objects, color=int('AA000000', 16), sig=None, grid=True, scale=1.0, bro
         render_scene_string_appropriately(str(objects))
     else:
         try:
-            render_scene_string_appropriately([i for i in objects])
+            print('Treating as iterable')
+            sc = GanjaScene()
+            sc.add_objects([i for i in objects], color=color, static=static)
+            render_scene_string_appropriately(str(sc))
         except:
             raise ValueError('The input cannot be interpreted, it is not a list of objects or ganja scene')

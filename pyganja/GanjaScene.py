@@ -9,6 +9,14 @@ class GanjaScene:
         self.internal_list = []
         self.mv_length = 32
 
+    def __add__(self, other):
+        if isinstance(other, GanjaScene):
+            gs = GanjaScene()
+            gs.internal_list = self.internal_list + other.internal_list
+            return gs
+        else:
+            raise ValueError('The objects being added are not both GanjaScenes...')
+
     def add_object(self, mv_array, color=int('AA000000', 16), label=None, static=False):
         self.mv_length = len(mv_array)
         if isinstance(color, enum.Enum):
