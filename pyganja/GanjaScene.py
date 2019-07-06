@@ -7,12 +7,15 @@ class GanjaScene:
 
     def __init__(self):
         self.internal_list = []
-        self.mv_length = 32
 
     def __add__(self, other):
         if isinstance(other, GanjaScene):
             gs = GanjaScene()
             gs.internal_list = self.internal_list + other.internal_list
+            if self.mv_length is not None:
+                gs.mv_length = self.mv_length
+            else:
+                gs.mv_length = other.mv_length
             return gs
         else:
             raise ValueError('The objects being added are not both GanjaScenes...')
@@ -39,6 +42,7 @@ class GanjaScene:
             self.internal_list.append(color.value)
         else:
             self.internal_list.append(color)
+        self.mv_length = len(mv_list[0])
         facet_list = []
         for mv_array in mv_list:
             facet_list.append([i for i in mv_array])

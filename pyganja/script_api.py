@@ -42,20 +42,22 @@ def read_ganja():
 def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
 
     if sig is not None:
-        p=(sig>0).sum()
-        q=(sig<0).sum()
+        p = (sig > 0).sum()
+        q = (sig < 0).sum()
+        r = len(sig) - p - q
     else:
         p = 4
         q = 1
-    sig_short = '%i,%i' % (p, q)
-    mv_length = str(2 ** (p + q))
+        r = 0
+    sig_short = '%i,%i,%i' % (p, q, r)
+    mv_length = str(2 ** (p + q + r))
 
     # not the best way to test conformal, as it prevents non-euclidean  geometry
     conformal = 'false'
     if q!=0:
         conformal = 'true'
 
-    if sig_short in ['4,1', '3,0', '3,1', '2,0']:
+    if sig_short in ['4,1,0', '3,0,0', '3,0,1']:
         if grid:
             gridstr = 'true'
         else:
@@ -64,7 +66,7 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
         js = read_ganja()
         js += """
         function add_graph_to_notebook(Algebra){
-            var output = Algebra({p:"""+str(p)+""",q:"""+str(q)+""",baseType:Float64Array},()=>{
+            var output = Algebra({p:"""+str(p)+""",q:"""+str(q)+""",r:"""+str(r)+""",baseType:Float64Array},()=>{
               // When we get a file, we load and display.
                 var canvas;
                 var h=0, p=0;
@@ -104,22 +106,24 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
 
 
 def generate_full_html(script_json, sig=None, grid=True, scale=1.0, gl=True):
-
     if sig is not None:
-        p=(sig>0).sum()
-        q=(sig<0).sum()
+        p = (sig > 0).sum()
+        q = (sig < 0).sum()
+        r = len(sig) - p - q
     else:
         p = 4
         q = 1
-    sig_short = '%i,%i' % (p, q)
-    mv_length = str(2 ** (p + q))
+        r = 0
+    sig_short = '%i,%i,%i' % (p, q, r)
+    print(sig_short)
+    mv_length = str(2 ** (p + q + r))
 
     # not the best way to test conformal, as it prevents non-euclidean  geometry
     conformal = 'false'
     if q!=0:
         conformal = 'true'
 
-    if sig_short in ['4,1', '3,0', '3,1', '2,0']:
+    if sig_short in ['4,1,0', '3,0,0', '3,0,1']:
         if grid:
             gridstr = 'true'
         else:
