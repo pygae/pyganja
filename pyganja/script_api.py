@@ -83,9 +83,8 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
             });
             element.append(output);
 
-            var a = document.createElement("SAVE");
-            var t = document.createTextNode("SAVE");
-            a.style.background = "cyan";
+            var a = document.createElement("button");
+            var t = document.createTextNode("\N{FLOPPY DISK} Save");
             a.appendChild(t);
             function screenshot(){
                 //output.width = 1920;  output.height = 1080;
