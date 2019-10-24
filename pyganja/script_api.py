@@ -14,16 +14,16 @@ try:
     CEFAVAILABLE = True
 except:
     print('Failed to import cef_gui, cef functions will be unavailable')
-    
+
 JUPYTERAVAILABLE = False
 try:
     from IPython.display import display, Javascript
     from IPython import get_ipython
     JUPYTERAVAILABLE = True
 except:
-    print('Failed to import ipython, notebook rendering will be unavailable')   
+    print('Failed to import ipython, notebook rendering will be unavailable')
 
-    
+
 def html_to_data_uri(html):
     html = html.encode("utf-8", "replace")
     b64 = base64.b64encode(html).decode("utf-8", "replace")
@@ -67,36 +67,34 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
         js += """
         function add_graph_to_notebook(Algebra){
             var output = Algebra({p:"""+str(p)+""",q:"""+str(q)+""",r:"""+str(r)+""",baseType:Float64Array},()=>{
-              // When we get a file, we load and display.
+                // When we get a file, we load and display.
                 var canvas;
                 var h=0, p=0;
-                  // convert arrays of floats back to CGA elements.     
-                     var data = """ + script_json + """;
-                     data = data.map(x=>x.length=="""+mv_length+"""?new Element(x):x);
-                  // add the graph to the page.
-                     canvas = this.graph(data,{gl:"""+str(gl).lower()+""",conformal:"""+conformal+""",grid:"""+gridstr+""",scale:"""+scalestr+""",useUnnaturalLineDisplayForPointPairs:true});
-                     canvas.options.h = h; canvas.options.p = p;
-                  // make it big.
-                     canvas.style.width = '50vw';
-                     canvas.style.height = '50vh';
-                     return canvas;
-                }
-            );
+                // convert arrays of floats back to CGA elements.
+                var data = """ + script_json + """;
+                data = data.map(x=>x.length=="""+mv_length+"""?new Element(x):x);
+                // add the graph to the page.
+                canvas = this.graph(data,{gl:"""+str(gl).lower()+""",conformal:"""+conformal+""",grid:"""+gridstr+""",scale:"""+scalestr+""",useUnnaturalLineDisplayForPointPairs:true});
+                canvas.options.h = h; canvas.options.p = p;
+                // make it big.
+                canvas.style.width = '50vw';
+                canvas.style.height = '50vh';
+                return canvas;
+            });
             element.append(output);
 
-            var a = document.createElement("SAVE"); 
+            var a = document.createElement("SAVE");
             var t = document.createTextNode("SAVE");
             a.style.background = "cyan";
             a.appendChild(t);
             function screenshot(){
-                  //output.width = 1920;  output.height = 1080; 
-                  output.update(output.value);  
-                  var url = output.toDataURL(); 
-                  window.open(url, '_blank');
-              }
-              a.onclick = screenshot
-              var butnelem = element.append(a);
-
+                //output.width = 1920;  output.height = 1080;
+                output.update(output.value);
+                var url = output.toDataURL();
+                window.open(url, '_blank');
+            }
+            a.onclick = screenshot
+            var butnelem = element.append(a);
         }
         require(['Algebra'],function(Algebra){add_graph_to_notebook(Algebra)});
         """
@@ -144,7 +142,7 @@ def generate_full_html(script_json, sig=None, grid=True, scale=1.0, gl=True):
         <HEAD>
             <meta charset="UTF-8">
             <title>pyganja</title>
-          <SCRIPT>""" + read_ganja() + """</SCRIPT>
+            <SCRIPT>""" + read_ganja() + """</SCRIPT>
         </HEAD>
         <BODY style="position:absolute; top:0; bottom:0; right:0; left:0; overflow:hidden;">
         <SCRIPT>
@@ -157,7 +155,7 @@ def generate_full_html(script_json, sig=None, grid=True, scale=1.0, gl=True):
     else:
         raise ValueError('Algebra not yet supported')
 
-        
+
 def render_browser_script(script_json, sig=None, grid=True, scale=1.0, gl=True, filename=None):
     """
     If we have no jupyter and no cefpython we will be forced to generate html
@@ -171,7 +169,7 @@ def render_browser_script(script_json, sig=None, grid=True, scale=1.0, gl=True, 
         print(html_code,file=fo)
     webbrowser.open(filename)
 
-    
+
 def render_notebook_script(script_json, sig=None, grid=True, scale=1.0, gl=True):
     """
     In a notebook we dont need to start cefpython as we
