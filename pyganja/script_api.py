@@ -96,7 +96,8 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
             a.onclick = screenshot
             var butnelem = element.append(a);
         }
-        require(['Algebra'],function(Algebra){add_graph_to_notebook(Algebra)});
+        // requirejs works in sphinx, require works in jupyter
+        (requirejs || require)(['Algebra'],function(Algebra){add_graph_to_notebook(Algebra)});
         """
     else:
         raise ValueError('Algebra not yet supported')
