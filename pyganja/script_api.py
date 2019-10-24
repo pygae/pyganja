@@ -77,7 +77,7 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
                 canvas = this.graph(data,{gl:"""+str(gl).lower()+""",conformal:"""+conformal+""",grid:"""+gridstr+""",scale:"""+scalestr+""",useUnnaturalLineDisplayForPointPairs:true});
                 canvas.options.h = h; canvas.options.p = p;
                 // make it big.
-                canvas.style.width = '50vw';
+                canvas.style.width = '100%';
                 canvas.style.height = '50vh';
                 return canvas;
             });
