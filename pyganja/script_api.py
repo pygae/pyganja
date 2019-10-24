@@ -90,8 +90,10 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
             function screenshot(){
                 //output.width = 1920;  output.height = 1080;
                 output.update(output.value);
-                var url = output.toDataURL();
-                window.open(url, '_blank');
+                output.toBlob(function(blob) {
+                    var url = URL.createObjectURL(blob);
+                    window.open(url, '_blank');
+                });
             }
             a.onclick = screenshot
             var butnelem = element.append(a);
