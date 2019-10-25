@@ -18,12 +18,12 @@ jobs:
     - name: Build
       run: |
         python setup.py sdist bdist_wheel
-    - name: Publish to Test PyPI (always)
-      uses: pypa/gh-action-pypi-publish@master
-      with:
-        user: __token__
-        password: ${{ secrets.pypi_password }}
-        repository_url: https://test.pypi.org/legacy/
+#     - name: Publish to Test PyPI (always)
+#       uses: pypa/gh-action-pypi-publish@master
+#       with:
+#         user: __token__
+#         password: ${{ secrets.test_pypi_password }}
+#         repository_url: https://test.pypi.org/legacy/
     - name: Publish to PyPI (on tag)
       if: startsWith(github.event.ref, 'refs/tags/v')
       uses: pypa/gh-action-pypi-publish@master
