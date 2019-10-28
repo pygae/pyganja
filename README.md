@@ -16,6 +16,7 @@ from pyganja import *
 draw([random_line() for i in range(10)])
 ```
 Produces:
+![Random lines](./random_lines.png?raw=true)
 
 
 Mulitple grades of object can be drawn in the same scene with different colors and transparencies
@@ -55,7 +56,7 @@ sc.add_objects([Ppi], color=rgb2hex((0,100,0))+int('70000000',16))
 draw(sc,scale=0.5)
 ```
 Produces:
-
+![Sphere reflection](./line_sphere_reflect.png?raw=true)
 
 # Installation
 ```
