@@ -3,6 +3,27 @@ import json
 import enum
 
 
+def _as_list(mv_array):
+    # clifford.multivector
+    if hasattr(mv_array, 'value'):
+        mv_array = mv_array.value
+
+    # numpy array, which contains non-json.dumps-able scalars
+    try:
+        import numpy as np
+    except ImportError:
+        pass
+    else:
+        if isinstance(mv_array, np.ndarray):
+            mv_array = mv_array.tolist()
+
+    # any other sequence
+    if not isinstance(mv_array, list):
+        mv_array = list(mv_array)
+
+    return mv_array
+
+
 class GanjaScene:
 
     def __init__(self):
@@ -27,9 +48,9 @@ class GanjaScene:
         else:
             self.internal_list.append(color)
         if static:
-            self.internal_list.append({'data': [[i for i in mv_array]]})
+            self.internal_list.append({'data': [_as_list(mv_array)]})
         else:
-            self.internal_list.append([i for i in mv_array])
+            self.internal_list.append(_as_list(mv_array))
         if label is not None:
             try:
                 assert isinstance(label, str)
@@ -45,7 +66,7 @@ class GanjaScene:
         self.mv_length = len(mv_list[0])
         facet_list = []
         for mv_array in mv_list:
-            facet_list.append([i for i in mv_array])
+            facet_list.append(_as_list(mv_array))
         if static:
             self.internal_list.append({'data': [facet_list]})
         else:
@@ -76,9 +97,9 @@ class GanjaScene:
         self.mv_length = len(mv_list[0])
         for mv_array in mv_list:
             if static:
-                static_list.append([i for i in mv_array])
+                static_list.append(_as_list(mv_array))
             else:
-                self.internal_list.append([i for i in mv_array])
+                self.internal_list.append(_as_list(mv_array))
         if static:
             self.internal_list.append({'data': static_list})
         if label is not None:
