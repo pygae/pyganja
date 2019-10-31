@@ -1,12 +1,13 @@
-
 from __future__ import print_function
 
 import os
-from .GanjaScene import GanjaScene
+import json
 import base64
 from multiprocessing import Process
 import hashlib
 import webbrowser
+
+from .GanjaScene import GanjaScene
 
 CEFAVAILABLE = False
 try:
@@ -42,45 +43,46 @@ def read_ganja():
 def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
 
     if sig is not None:
-        p = (sig > 0).sum()
-        q = (sig < 0).sum()
+        p = (sig > 0).sum().item()  # convert to json-compatible scalar
+        q = (sig < 0).sum().item()  # convert to json-compatible scalar
         r = len(sig) - p - q
     else:
         p = 4
         q = 1
         r = 0
-    sig_short = '%i,%i,%i' % (p, q, r)
     mv_length = str(2 ** (p + q + r))
 
     # not the best way to test conformal, as it prevents non-euclidean  geometry
-    conformal = 'false'
-    if q!=0:
-        conformal = 'true'
+    if q != 0:
+        conformal = True
+    else:
+        conformal = False
 
-    if sig_short in ['4,1,0', '3,0,0', '3,0,1']:
-        if grid:
-            gridstr = 'true'
-        else:
-            gridstr = 'false'
-        scalestr = str(scale)
+    if (p, q, r) in [(4, 1, 0), (3, 0, 0), (3, 0, 1)]:
+        opts = dict(
+            p=p, q=q, r=r, gl=gl, conformal=conformal, grid=grid, scale=scale,
+            mv_length=mv_length
+        )
         js = read_ganja()
         js += """
         requirejs(['Algebra'], function(Algebra) {
-            var output = Algebra({p:"""+str(p)+""",q:"""+str(q)+""",r:"""+str(r)+""",baseType:Float64Array},()=>{
+            var opts = """ + json.dumps(opts) + """;  // injected from python
+            var output = Algebra({p: opts.p, q: opts.q, r: opts.r, baseType: Float64Array}).inline((opts)=>{
+                var data = """ + script_json + """;  // injected from python
+
                 // When we get a file, we load and display.
                 var canvas;
                 var h=0, p=0;
                 // convert arrays of floats back to CGA elements.
-                var data = """ + script_json + """;
-                data = data.map(x=>x.length=="""+mv_length+"""?new Element(x):x);
+                data = data.map(x=>x.length==opts.mv_length?new Element(x):x);
                 // add the graph to the page.
-                canvas = this.graph(data,{gl:"""+str(gl).lower()+""",conformal:"""+conformal+""",grid:"""+gridstr+""",scale:"""+scalestr+""",useUnnaturalLineDisplayForPointPairs:true});
+                canvas = this.graph(data, {gl: opts.gl, conformal: opts.conformal, grid: opts.grid, scale: opts.scale, useUnnaturalLineDisplayForPointPairs: true});
                 canvas.options.h = h; canvas.options.p = p;
                 // make it big.
                 canvas.style.width = '100%';
                 canvas.style.height = '50vh';
                 return canvas;
-            });
+            })(opts);
             element.append(output);
 
             var a = document.createElement("button");
