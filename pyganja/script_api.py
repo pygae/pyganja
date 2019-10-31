@@ -67,40 +67,43 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
         )
         js = read_ganja()
         js += """
-        requirejs(['Algebra'], function(Algebra) {
-            var opts = """ + json.dumps(opts) + """;  // injected from python
-            var output = Algebra({p: opts.p, q: opts.q, r: opts.r, baseType: Float64Array}).inline((opts)=>{
-                var data = """ + script_json + """;  // injected from python
+        // take a closure on element before the next cell replaces it
+        (function(element) {
+            requirejs(['Algebra'], function(Algebra) {
+                var opts = """ + json.dumps(opts) + """;  // injected from python
+                var output = Algebra({p: opts.p, q: opts.q, r: opts.r, baseType: Float64Array}).inline((opts)=>{
+                    var data = """ + script_json + """;  // injected from python
 
-                // When we get a file, we load and display.
-                var canvas;
-                var h=0, p=0;
-                // convert arrays of floats back to CGA elements.
-                data = data.map(x=>x.length==opts.mv_length?new Element(x):x);
-                // add the graph to the page.
-                canvas = this.graph(data, {gl: opts.gl, conformal: opts.conformal, grid: opts.grid, scale: opts.scale, useUnnaturalLineDisplayForPointPairs: true});
-                canvas.options.h = h; canvas.options.p = p;
-                // make it big.
-                canvas.style.width = '100%';
-                canvas.style.height = '50vh';
-                return canvas;
-            })(opts);
-            element.append(output);
+                    // When we get a file, we load and display.
+                    var canvas;
+                    var h=0, p=0;
+                    // convert arrays of floats back to CGA elements.
+                    data = data.map(x=>x.length==opts.mv_length?new Element(x):x);
+                    // add the graph to the page.
+                    canvas = this.graph(data, {gl: opts.gl, conformal: opts.conformal, grid: opts.grid, scale: opts.scale, useUnnaturalLineDisplayForPointPairs: true});
+                    canvas.options.h = h; canvas.options.p = p;
+                    // make it big.
+                    canvas.style.width = '100%';
+                    canvas.style.height = '50vh';
+                    return canvas;
+                })(opts);
+                element.append(output);
 
-            var a = document.createElement("button");
-            var t = document.createTextNode("\N{FLOPPY DISK} Save");
-            a.appendChild(t);
-            function screenshot(){
-                //output.width = 1920;  output.height = 1080;
-                output.update(output.value);
-                output.toBlob(function(blob) {
-                    var url = URL.createObjectURL(blob);
-                    window.open(url, '_blank');
-                });
-            }
-            a.onclick = screenshot
-            var butnelem = element.append(a);
-        });
+                var a = document.createElement("button");
+                var t = document.createTextNode("\N{FLOPPY DISK} Save");
+                a.appendChild(t);
+                function screenshot(){
+                    //output.width = 1920;  output.height = 1080;
+                    output.update(output.value);
+                    output.toBlob(function(blob) {
+                        var url = URL.createObjectURL(blob);
+                        window.open(url, '_blank');
+                    });
+                }
+                a.onclick = screenshot
+                var butnelem = element.append(a);
+            });
+        })(element);
         """
     else:
         raise ValueError('Algebra not yet supported')
