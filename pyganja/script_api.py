@@ -58,7 +58,9 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
     else:
         conformal = False
 
-    if (p, q, r) in [(4, 1, 0), (3, 0, 0), (3, 0, 1)]:
+    if (p, q, r) in [(4, 1, 0), (3, 1, 0), (3, 0, 0), (3, 0, 1)]:
+        if p - q == 2:
+            gl = False  # 2d
         opts = dict(
             p=p, q=q, r=r, gl=gl, conformal=conformal, grid=grid, scale=scale,
             mv_length=mv_length
