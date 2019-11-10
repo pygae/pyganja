@@ -69,7 +69,7 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
         js += """
         // take a closure on element before the next cell replaces it
         (function(element) {
-            requirejs(['Algebra'], function(Algebra) {
+            (requirejs||require)(['Algebra'], function(Algebra) {
                 var opts = """ + json.dumps(opts) + """;  // injected from python
                 var output = Algebra({p: opts.p, q: opts.q, r: opts.r, baseType: Float64Array}).inline((opts)=>{
                     var data = """ + script_json + """;  // injected from python
