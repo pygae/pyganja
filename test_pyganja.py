@@ -37,7 +37,7 @@ class TestG3Drawing(unittest.TestCase):
         from clifford.g3 import layout
         gs = GanjaScene()
         gs.add_objects([random_euc_mv().value[0:8] for i in range(10)], static=False)
-        with open('test_file.html','w') as test_file:
+        with open('test_file.html', 'w') as test_file:
             print(generate_full_html(str(gs), sig=layout.sig, grid=True, scale=1.0, gl=False), file=test_file)
         render_cef_script(str(gs), sig=layout.sig, grid=True, scale=1.0, gl=False)
 
@@ -50,6 +50,14 @@ class TestGanjaSceneOps(unittest.TestCase):
         b = GanjaScene()
         b.add_objects([random_circle() for i in range(10)], color=Color.BLUE)
         draw(a + b, scale=0.01)
+
+
+class TestPGADrawing(unittest.TestCase):
+    def test_draw_lines(self):
+        from clifford.pga import layout, blades
+        p = 0.5*blades['e1'] + 0.5*blades['e2'] + 1.0*blades['e0']
+        print(p)
+        draw([p], sig=layout.sig)
 
 
 if __name__ == '__main__':

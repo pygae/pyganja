@@ -21,7 +21,7 @@ class install_with_submodules(install):
 setup(
     cmdclass={"build": build_with_submodules, "install": install_with_submodules},
     name='pyganja',
-    version='0.0.1',
+    version='0.0.3',
     packages=find_packages(),
     url='https://github.com/hugohadfield/pyganja',
     license='',
