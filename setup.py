@@ -9,7 +9,6 @@ class build_with_submodules(build):
         if path.exists('.git'):
             subprocess.check_call(['git', 'submodule', 'init'])
             subprocess.check_call(['git', 'submodule', 'update'])
-            subprocess.check_call(['git', 'submodule', 'foreach', 'git', 'pull', 'origin', 'master'])
         build.run(self)
 
 class install_with_submodules(install):
@@ -17,7 +16,6 @@ class install_with_submodules(install):
         if path.exists('.git'):
             subprocess.check_call(['git', 'submodule', 'init'])
             subprocess.check_call(['git', 'submodule', 'update'])
-            subprocess.check_call(['git', 'submodule', 'foreach', 'git', 'pull', 'origin', 'master'])
         install.run(self)
 
 setup(
