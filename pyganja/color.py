@@ -1,19 +1,42 @@
-
-from enum import Enum
+import numbers
+from enum import IntEnum
+import operator
 
 def rgb2hex(x):
-    if len(x) == 3:
-        return int('%02x%02x%02x' %(int(x[0]),int(x[1]),int(x[2])),16)
-    elif len(x) == 4:
-        return int('%02x%02x%02x%02x' %(int(x[0]),int(x[1]),int(x[2]),int(x[3])),16)
+    if len(x) in (3, 4):
+        val = 0
+        for xi in x:
+            val = (val << 8) | _entry_as_uint8(xi)
+        return val
     else:
         raise ValueError('X must be of length 3 or 4, ie. an rgb or argb array')
 
-class Color(Enum):
-    BLUE = int('000000FF', 16)
-    RED = int('00FF0000', 16)
-    GREEN = int('0000FF00', 16)
-    YELLOW = int('00FFFF00', 16)
-    MAGENTA = int('00FF00FF', 16)
-    CYAN = int('0000FFFF', 16)
-    BLACK = int('00000000', 16)
+
+def _entry_as_uint8(v):
+    if isinstance(v, numbers.Integral):
+        if v > 255:
+            return 255
+        elif v < 0:
+            return 0
+        else:
+            return operator.index(v)
+    else:
+        raise TypeError("Can't convert {!r} to a color component".format(v))
+
+
+def as_hex(x):
+    """ Convert any vague color description to a hex color """
+    try:
+        return operator.index(x)
+    except TypeError:
+        return rgb2hex(x)
+
+
+class Color(IntEnum):
+    BLUE = 0x000000FF
+    RED = 0x00FF0000
+    GREEN = 0x0000FF00
+    YELLOW = 0x00FFFF00
+    MAGENTA = 0x00FF00FF
+    CYAN = 0x0000FFFF
+    BLACK = 0x00000000

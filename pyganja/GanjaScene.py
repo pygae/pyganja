@@ -1,6 +1,6 @@
 
 import json
-import enum
+from . import color as _color
 
 
 def _as_list(mv_array):
@@ -41,12 +41,9 @@ class GanjaScene:
         else:
             raise ValueError('The objects being added are not both GanjaScenes...')
 
-    def add_object(self, mv_array, color=int('AA000000', 16), label=None, static=False):
+    def add_object(self, mv_array, color=0xAA000000, label=None, static=False):
         self.mv_length = len(mv_array)
-        if isinstance(color, enum.Enum):
-            self.internal_list.append(color.value)
-        else:
-            self.internal_list.append(color)
+        self.internal_list.append(_color.as_hex(color))
         if static:
             self.internal_list.append({'data': [_as_list(mv_array)]})
         else:
@@ -58,11 +55,8 @@ class GanjaScene:
             except:
                 raise ValueError('Labels must be strings')
 
-    def add_facet(self, mv_list, color=int('AA000000', 16), label=None, static=False):
-        if isinstance(color, enum.Enum):
-            self.internal_list.append(color.value)
-        else:
-            self.internal_list.append(color)
+    def add_facet(self, mv_list, color=0xAA000000, label=None, static=False):
+        self.internal_list.append(_color.as_hex(color))
         self.mv_length = len(mv_list[0])
         facet_list = []
         for mv_array in mv_list:
@@ -78,7 +72,7 @@ class GanjaScene:
             except:
                 raise ValueError('Labels must be strings')
 
-    def add_facets(self, mv_list, color=int('AA000000', 16), label=None, static=False):
+    def add_facets(self, mv_list, color=0xAA000000, label=None, static=False):
         for mv_array in mv_list:
             self.add_facet(mv_array,color=color, label=label, static=static)
         if label is not None:
@@ -88,11 +82,8 @@ class GanjaScene:
             except:
                 raise ValueError('Labels must be strings')
 
-    def add_objects(self, mv_list, color=int('AA000000', 16), label=None, static=False):
-        if isinstance(color, enum.Enum):
-            self.internal_list.append(color.value)
-        else:
-            self.internal_list.append(color)
+    def add_objects(self, mv_list, color=0xAA000000, label=None, static=False):
+        self.internal_list.append(_color.as_hex(color))
         static_list = []
         self.mv_length = len(mv_list[0])
         for mv_array in mv_list:
