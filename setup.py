@@ -3,6 +3,10 @@ import subprocess
 from distutils.command.install import install
 from distutils.command.build import build
 from os import path
+import os
+
+version_path = os.path.join('pyganja', '_version.py')
+exec(open(version_path).read())
 
 class build_with_submodules(build):
     def run(self):
@@ -21,7 +25,7 @@ class install_with_submodules(install):
 setup(
     cmdclass={"build": build_with_submodules, "install": install_with_submodules},
     name='pyganja',
-    version='0.0.8',
+    version=__version__,
     packages=find_packages(),
     url='https://github.com/hugohadfield/pyganja',
     license='',
