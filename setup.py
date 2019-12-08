@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 import subprocess
-from distutils.command.install import install
+from setuptools.command.install import install
 from distutils.command.build import build
 from os import path
 import os
