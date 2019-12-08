@@ -6,6 +6,7 @@ import base64
 from multiprocessing import Process
 import hashlib
 import webbrowser
+import warnings
 
 from .GanjaScene import GanjaScene
 
@@ -14,7 +15,9 @@ try:
     from .cefwindow import *
     CEFAVAILABLE = True
 except:
-    print('Failed to import cef_gui, cef functions will be unavailable')
+    warnings.warn(
+        'Failed to import cef_gui, cef functions will be unavailable',
+        stacklevel=2)
 
 JUPYTERAVAILABLE = False
 try:
@@ -22,7 +25,9 @@ try:
     from IPython import get_ipython
     JUPYTERAVAILABLE = True
 except:
-    print('Failed to import ipython, notebook rendering will be unavailable')
+    warnings.warn(
+        'Failed to import ipython, notebook rendering will be unavailable',
+        stacklevel=2)
 
 
 def html_to_data_uri(html):
@@ -81,7 +86,8 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
                     data = data.map(x=>x.length==opts.mv_length?new Element(x):x);
                     // add the graph to the page.
                     canvas = this.graph(data, {gl: opts.gl, conformal: opts.conformal, grid: opts.grid, scale: opts.scale, useUnnaturalLineDisplayForPointPairs: true});
-                    canvas.options.h = h; canvas.options.p = p;
+                    canvas.options.h = h;
+                    canvas.options.p = p;
                     // make it big.
                     canvas.style.width = '100%';
                     canvas.style.height = '50vh';
@@ -106,6 +112,7 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
                 a.onclick = screenshot
                 var butnelem = element.append(a);
             });
+
         })(element);
         """
     else:
