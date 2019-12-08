@@ -35,7 +35,7 @@ def html_to_data_uri(html):
 def read_ganja():
     dir_name = os.path.dirname(os.path.abspath(__file__))
     ganja_filename = dir_name + '/static/ganja.js/ganja.js'
-    with open(ganja_filename, 'r') as ganja_file:
+    with open(ganja_filename, 'r', encoding='utf8') as ganja_file:
         output = ganja_file.read()
     return output
 
