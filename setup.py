@@ -28,7 +28,7 @@ setup(
     version=__version__,
     packages=find_packages(),
     url='https://github.com/hugohadfield/pyganja',
-    license='',
+    license='MIT',
     author='Hugo Hadfield',
     author_email='hadfield.hugo@gmail.com',
     description='Python interface to ganja.js',
