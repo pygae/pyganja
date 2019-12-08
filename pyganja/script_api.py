@@ -100,6 +100,9 @@ def generate_notebook_js(script_json, sig=None, grid=True, scale=1.0, gl=True):
                         window.open(url, '_blank');
                     });
                 }
+                window.addEventListener('resize', function() {
+                    output.update(output.value);
+                });
                 a.onclick = screenshot
                 var butnelem = element.append(a);
             });
