@@ -182,7 +182,7 @@ def render_browser_script(script_json, sig=None, grid=True, scale=1.0, gl=True, 
     if filename is None:
         hash_object = hashlib.md5(html_code.encode())
         filename = hash_object.hexdigest() + '.html'
-    with open(filename,'w') as fo:
+    with open(filename, 'w', encoding='utf8') as fo:
         print(html_code,file=fo)
     webbrowser.open(filename)
 
