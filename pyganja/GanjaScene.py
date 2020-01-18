@@ -28,6 +28,7 @@ class GanjaScene:
 
     def __init__(self):
         self.internal_list = []
+        self.mv_length = None
 
     def __add__(self, other):
         if isinstance(other, GanjaScene):
@@ -101,10 +102,13 @@ class GanjaScene:
                 raise ValueError('Labels must be strings')
 
     def __repr__(self):
-        new_str = str.replace(json.dumps(self.internal_list), '''"data": ''', 'data:')
-        new_str = str.replace(new_str, ']}', """].map(x=>x.length=="""+str(self.mv_length)+"""?new Element(x):x)}""")
-        new_str = str.replace(new_str, ']]',
-                              """]].map(x=>x.length==""" + str(self.mv_length) + """?new Element(x):x)""")
+        if self.mv_length is None:
+            new_str = '[]'
+        else:
+            new_str = str.replace(json.dumps(self.internal_list), '''"data": ''', 'data:')
+            new_str = str.replace(new_str, ']}', """].map(x=>x.length=="""+str(self.mv_length)+"""?new Element(x):x)}""")
+            new_str = str.replace(new_str, ']]',
+                                  """]].map(x=>x.length==""" + str(self.mv_length) + """?new Element(x):x)""")
         return new_str
 
     def save_to_file(self, filename):
