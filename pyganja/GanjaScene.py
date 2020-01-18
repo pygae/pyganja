@@ -28,6 +28,7 @@ class GanjaScene:
 
     def __init__(self):
         self.internal_list = []
+        self.mv_length = None
 
     def __add__(self, other):
         if isinstance(other, GanjaScene):
