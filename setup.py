@@ -5,6 +5,12 @@ from distutils.command.build import build
 from os import path
 import os
 
+# read the contents of our README file
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
+
 version_path = os.path.join('pyganja', '_version.py')
 exec(open(version_path).read())
 
@@ -36,4 +42,6 @@ setup(
     install_requires = [
             'IPython'
     ],
+    long_description=long_description,
+    long_description_content_type='text/markdown'
 )
