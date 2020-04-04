@@ -10,6 +10,8 @@ import warnings
 
 from .GanjaScene import GanjaScene
 
+from .color import Color
+
 CEFAVAILABLE = False
 try:
     from .cefwindow import *
@@ -45,8 +47,9 @@ def read_ganja():
     return output
 
 
-def generate_notebook_js(scene, sig=None, grid=True, scale=1.0, gl=True):
-    script_json = _to_scene_string(scene)
+def generate_notebook_js(scene, sig=None, grid=True, scale=1.0, gl=True,
+                         default_color=Color.DEFAULT, default_static=False):
+    script_json = _to_scene_string(scene, default_color=default_color, default_static=default_static)
     if sig is not None:
         p = (sig > 0).sum().item()  # convert to json-compatible scalar
         q = (sig < 0).sum().item()  # convert to json-compatible scalar
@@ -120,8 +123,9 @@ def generate_notebook_js(scene, sig=None, grid=True, scale=1.0, gl=True):
     return Javascript(js)
 
 
-def generate_full_html(scene, sig=None, grid=True, scale=1.0, gl=True):
-    script_json = _to_scene_string(scene)
+def generate_full_html(scene, sig=None, grid=True, scale=1.0, gl=True,
+                       default_color=Color.DEFAULT, default_static=False):
+    script_json = _to_scene_string(scene, default_color=default_color, default_static=default_static)
     if sig is not None:
         p = (sig > 0).sum()
         q = (sig < 0).sum()
@@ -174,12 +178,14 @@ def generate_full_html(scene, sig=None, grid=True, scale=1.0, gl=True):
         raise ValueError('Algebra not yet supported')
 
 
-def render_browser_script(scene, sig=None, grid=True, scale=1.0, gl=True, filename=None):
+def render_browser_script(scene, sig=None, grid=True, scale=1.0, gl=True, filename=None,
+                          default_color=Color.DEFAULT, default_static=False):
     """
     If we have no jupyter and no cefpython we will be forced to generate html
     and render that in the users browser
     """
-    html_code = generate_full_html(scene, sig=sig, grid=grid, scale=scale, gl=gl)
+    html_code = generate_full_html(scene, sig=sig, grid=grid, scale=scale, gl=gl,
+                                   default_color=default_color, default_static=default_static)
     if filename is None:
         hash_object = hashlib.md5(html_code.encode())
         filename = hash_object.hexdigest() + '.html'
@@ -188,18 +194,22 @@ def render_browser_script(scene, sig=None, grid=True, scale=1.0, gl=True, filena
     webbrowser.open(filename)
 
 
-def render_notebook_script(scene, sig=None, grid=True, scale=1.0, gl=True):
+def render_notebook_script(scene, sig=None, grid=True, scale=1.0, gl=True,
+                           default_color=Color.DEFAULT, default_static=False):
     """
     In a notebook we dont need to start cefpython as we
     are already in the browser!
     """
-    js = generate_notebook_js(scene, sig=sig, grid=grid, scale=scale, gl=gl)
+    js = generate_notebook_js(scene, sig=sig, grid=grid, scale=scale, gl=gl,
+                              default_color=default_color, default_static=default_static)
     display(js)
 
 
-def render_cef_script(scene="", sig=None, grid=True, scale=1.0, gl=True):
+def render_cef_script(scene="", sig=None, grid=True, scale=1.0, gl=True,
+                      default_color=Color.DEFAULT, default_static=False):
     def render_script():
-        final_url = html_to_data_uri(generate_full_html(scene, sig=sig, grid=grid, scale=scale, gl=gl))
+        final_url = html_to_data_uri(generate_full_html(scene, sig=sig, grid=grid, scale=scale, gl=gl,
+                                                        default_color=default_color, default_static=default_static))
         run_cef_gui(final_url, "pyganja")
     p = Process(target=render_script)
     p.start()
@@ -221,41 +231,52 @@ def isnotebook():
         return False      # Probably standard Python interpreter
 
 
-def draw(objects, color=int('AA000000', 16), sig=None, grid=True, scale=1.0, browser_window=False, new_window=False, static=False, gl=True):
+def draw(objects, color=Color.DEFAULT, sig=None, grid=True, scale=1.0,
+         browser_window=False, new_window=False, static=False, gl=True):
     if JUPYTERAVAILABLE:
         if isnotebook():
             if not new_window:
-                render_notebook_script(objects, sig=sig, grid=grid, scale=scale, gl=gl)
+                render_notebook_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
+                                       default_color=color, default_static=static)
             else:
                 if CEFAVAILABLE:
                     if browser_window:
-                        render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl)
+                        render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
+                                       default_color=color, default_static=static)
                     else:
-                        render_cef_script(objects, sig=sig, grid=grid, scale=scale, gl=gl)
+                        render_cef_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
+                                       default_color=color, default_static=static)
                 else:
-                    render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl)
+                    render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
+                                       default_color=color, default_static=static)
         else:
             if CEFAVAILABLE:
                 if browser_window:
-                    render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl)
+                    render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
+                                       default_color=color, default_static=static)
                 else:
-                    render_cef_script(objects, sig=sig, grid=grid, scale=scale, gl=gl)
+                    render_cef_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
+                                       default_color=color, default_static=static)
             else:
-                render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl)
+                render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
+                                       default_color=color, default_static=static)
     else:
         if CEFAVAILABLE:
             if browser_window:
-                render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl)
+                render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
+                                       default_color=color, default_static=static)
             else:
-                render_cef_script(objects, sig=sig, grid=grid, scale=scale, gl=gl)
+                render_cef_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
+                                       default_color=color, default_static=static)
         else:
-            render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl)
+            render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
+                                       default_color=color, default_static=static)
 
 
-def _to_scene_string(objects):
+def _to_scene_string(objects, default_color=Color.DEFAULT, default_static=False):
     if isinstance(objects, list):
         sc = GanjaScene()
-        sc.add_objects(objects, color=color, static=static)
+        sc.add_objects(objects, color=default_color, static=default_static)
         return str(sc)
     elif isinstance(objects, str):
         return objects
@@ -265,7 +286,7 @@ def _to_scene_string(objects):
         sc = GanjaScene()
         try:
             print('Treating as iterable')
-            sc.add_objects([i for i in objects], color=color, static=static)
+            sc.add_objects([i for i in objects], color=default_color, static=default_static)
             return str(sc)
         except Exception:
             raise ValueError('The input cannot be interpreted, it is not a list of objects or ganja scene')

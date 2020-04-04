@@ -40,3 +40,4 @@ class Color(IntEnum):
     MAGENTA = 0x00FF00FF
     CYAN = 0x0000FFFF
     BLACK = 0x00000000
+    DEFAULT = int('AA000000', 16)
