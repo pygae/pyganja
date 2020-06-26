@@ -43,12 +43,13 @@ class GanjaScene:
             raise ValueError('The objects being added are not both GanjaScenes...')
 
     def add_object(self, mv_array, color=0xAA000000, label=None, static=False):
-        self.mv_length = len(mv_array)
+        mv_list = _as_list(mv_array)
+        self.mv_length = len(mv_list)
         self.internal_list.append(_color.as_hex(color))
         if static:
-            self.internal_list.append({'data': [_as_list(mv_array)]})
+            self.internal_list.append({'data': [mv_list]})
         else:
-            self.internal_list.append(_as_list(mv_array))
+            self.internal_list.append(mv_list)
         if label is not None:
             try:
                 assert isinstance(label, str)
@@ -58,10 +59,11 @@ class GanjaScene:
 
     def add_facet(self, mv_list, color=0xAA000000, label=None, static=False):
         self.internal_list.append(_color.as_hex(color))
-        self.mv_length = len(mv_list[0])
         facet_list = []
         for mv_array in mv_list:
-            facet_list.append(_as_list(mv_array))
+            mv_list = _as_list(mv_array)
+            facet_list.append(mv_list)
+            self.mv_length = len(mv_list)
         if static:
             self.internal_list.append({'data': [facet_list]})
         else:
@@ -73,9 +75,9 @@ class GanjaScene:
             except:
                 raise ValueError('Labels must be strings')
 
-    def add_facets(self, mv_list, color=0xAA000000, label=None, static=False):
-        for mv_array in mv_list:
-            self.add_facet(mv_array,color=color, label=label, static=static)
+    def add_facets(self, mv_vertex_list, color=0xAA000000, label=None, static=False):
+        for mv_array in mv_vertex_list:
+            self.add_facet(mv_array, color=color, label=label, static=static)
         if label is not None:
             try:
                 assert isinstance(label, str)
@@ -83,15 +85,16 @@ class GanjaScene:
             except:
                 raise ValueError('Labels must be strings')
 
-    def add_objects(self, mv_list, color=0xAA000000, label=None, static=False):
+    def add_objects(self, mv_object_list, color=0xAA000000, label=None, static=False):
         self.internal_list.append(_color.as_hex(color))
         static_list = []
-        self.mv_length = len(mv_list[0])
-        for mv_array in mv_list:
+        for mv_array in mv_object_list:
+            mv_list = _as_list(mv_array)
+            self.mv_length = len(mv_list)
             if static:
-                static_list.append(_as_list(mv_array))
+                static_list.append(mv_list)
             else:
-                self.internal_list.append(_as_list(mv_array))
+                self.internal_list.append(mv_list)
         if static:
             self.internal_list.append({'data': static_list})
         if label is not None:
