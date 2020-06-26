@@ -46,10 +46,40 @@ class TestPGA3DDrawing(unittest.TestCase):
     def test_draw_points(self):
         from clifford.pga import layout, blades
         import numpy as np
-        def random_euc_mv():
+        def random_point():
             return sum([c*b for c,b in zip(np.random.randn(3), [blades["e023"], blades["e013"], blades["e012"]])]) + blades["e123"]
         gs = GanjaScene()
-        gs.add_objects([random_euc_mv() for i in range(10)], static=False)
+        gs.add_objects([random_point() for i in range(10)], static=False)
+        with open('test_file.html', 'w') as test_file:
+            print(generate_full_html(str(gs), sig=layout.sig, grid=True, scale=1.0, gl=True), file=test_file)
+        draw(gs, sig=layout.sig, grid=True, scale=1.0, gl=True)
+
+    def test_draw_lines(self):
+        from clifford.pga import layout, blades
+        import numpy as np
+
+        def random_point():
+            return sum([c * b for c, b in zip(np.random.randn(3), [blades["e023"], blades["e013"], blades["e012"]])]) + \
+                   blades["e123"]
+
+        def random_line():
+            return (random_point().dual()^random_point().dual()).dual()
+
+        gs = GanjaScene()
+        gs.add_objects([random_line() for i in range(10)], static=False)
+        with open('test_file.html', 'w') as test_file:
+            print(generate_full_html(str(gs), sig=layout.sig, grid=True, scale=1.0, gl=True), file=test_file)
+        draw(gs, sig=layout.sig, grid=True, scale=1.0, gl=True)
+
+    def test_draw_planes(self):
+        from clifford.pga import layout, blades
+        import numpy as np
+        def random_point():
+            return sum(
+                [c * b for c, b in zip(np.random.randn(3), [blades["e023"], blades["e013"], blades["e012"]])]) + \
+                   blades["e123"]
+        gs = GanjaScene()
+        gs.add_objects([random_point().dual() for i in range(10)], static=False)
         with open('test_file.html', 'w') as test_file:
             print(generate_full_html(str(gs), sig=layout.sig, grid=True, scale=1.0, gl=True), file=test_file)
         draw(gs, sig=layout.sig, grid=True, scale=1.0, gl=True)
