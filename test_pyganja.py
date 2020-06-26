@@ -42,6 +42,19 @@ class TestG3Drawing(unittest.TestCase):
         render_cef_script(str(gs), sig=layout.sig, grid=True, scale=1.0, gl=False)
 
 
+class TestPGA3DDrawing(unittest.TestCase):
+    def test_draw_points(self):
+        from clifford.pga import layout, blades
+        import numpy as np
+        def random_euc_mv():
+            return sum([c*b for c,b in zip(np.random.randn(3), [blades["e023"], blades["e013"], blades["e012"]])]) + blades["e123"]
+        gs = GanjaScene()
+        gs.add_objects([random_euc_mv() for i in range(10)], static=False)
+        with open('test_file.html', 'w') as test_file:
+            print(generate_full_html(str(gs), sig=layout.sig, grid=True, scale=1.0, gl=True), file=test_file)
+        draw(gs, sig=layout.sig, grid=True, scale=1.0, gl=True)
+
+
 class TestGanjaSceneOps(unittest.TestCase):
     def test_scene_addition(self):
         from clifford.tools.g3c import random_line, random_circle
