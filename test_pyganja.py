@@ -38,7 +38,7 @@ class TestG3Drawing(unittest.TestCase):
         gs = GanjaScene()
         gs.add_objects([random_euc_mv().value[0:8] for i in range(10)], static=False)
         with open('test_file.html', 'w') as test_file:
-            print(generate_full_html(str(gs), sig=layout.sig, grid=True, scale=1.0, gl=False), file=test_file)
+            test_file.write(generate_full_html(str(gs), sig=layout.sig, grid=True, scale=1.0, gl=True))
         render_cef_script(str(gs), sig=layout.sig, grid=True, scale=1.0, gl=False)
 
 
@@ -60,7 +60,7 @@ class TestPGA3DDrawing(unittest.TestCase):
         gs = GanjaScene()
         gs.add_objects([self.random_point() for i in range(10)], static=False)
         with open('test_file.html', 'w') as test_file:
-            print(generate_full_html(str(gs), sig=self.layout.sig, grid=True, scale=1.0, gl=True), file=test_file)
+            test_file.write(generate_full_html(str(gs), sig=self.layout.sig, grid=True, scale=1.0, gl=True))
         draw(gs, sig=self.layout.sig, grid=True, scale=1.0, gl=True)
 
     def test_draw_lines(self):
@@ -71,14 +71,14 @@ class TestPGA3DDrawing(unittest.TestCase):
         gs = GanjaScene()
         gs.add_objects([random_line() for i in range(10)], static=False)
         with open('test_file.html', 'w') as test_file:
-            print(generate_full_html(str(gs), sig=self.layout.sig, grid=True, scale=1.0, gl=True), file=test_file)
+            test_file.write(generate_full_html(str(gs), sig=self.layout.sig, grid=True, scale=1.0, gl=True))
         draw(gs, sig=self.layout.sig, grid=True, scale=1.0, gl=True)
 
     def test_draw_planes(self):
         gs = GanjaScene()
         gs.add_objects([self.random_point().dual() for i in range(10)], static=False)
         with open('test_file.html', 'w') as test_file:
-            print(generate_full_html(str(gs), sig=self.layout.sig, grid=True, scale=1.0, gl=True), file=test_file)
+            test_file.write(generate_full_html(str(gs), sig=self.layout.sig, grid=True, scale=1.0, gl=True))
         draw(gs, sig=self.layout.sig, grid=True, scale=1.0, gl=True)
 
 
