@@ -46,15 +46,13 @@ class TestPGA3DDrawing(unittest.TestCase):
 
     def setUp(self):
         from clifford.pga import layout, blades
-        import numpy as np
         self.layout = layout
         self.blades = blades
-        self.np = np
 
     def random_point(self):
-        return sum(c * b for c, b in
-                   zip(self.np.random.randn(3), [self.blades["e023"], self.blades["e013"], self.blades["e012"]])) + \
-               self.blades["e123"]
+        import numpy as np
+        return self.blades["e123"] + sum(
+            c * self.blades[b] for c, b in zip(np.random.randn(3), ["e023", "e013", "e012"]))
 
     def test_draw_points(self):
         gs = GanjaScene()
