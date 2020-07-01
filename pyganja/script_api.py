@@ -73,7 +73,14 @@ def generate_notebook_js(scene, sig=None, grid=True, scale=1.0, gl=True,
             p=p, q=q, r=r, gl=gl, conformal=conformal, grid=grid, scale=scale,
             mv_length=mv_length
         )
-        js = read_ganja()
+        js = """
+        // We load ganja.js with requireJS, since `module.exports` / require
+        // only work if things are in separate files. In most situations
+        // `module` is already undefined, but in VSCode is is not (gh-46).
+        // Explicitly clearing it makes ganja.js fall back to RequireJS.
+        let module = undefined;
+        """
+        js += read_ganja()
         js += """
         // take a closure on element before the next cell replaces it
         (function(element) {
