@@ -38,8 +38,46 @@ class TestG3Drawing(unittest.TestCase):
         gs = GanjaScene()
         gs.add_objects([random_euc_mv().value[0:8] for i in range(10)], static=False)
         with open('test_file.html', 'w') as test_file:
-            print(generate_full_html(str(gs), sig=layout.sig, grid=True, scale=1.0, gl=False), file=test_file)
+            test_file.write(generate_full_html(str(gs), sig=layout.sig, grid=True, scale=1.0, gl=True))
         render_cef_script(str(gs), sig=layout.sig, grid=True, scale=1.0, gl=False)
+
+
+class TestPGA3DDrawing(unittest.TestCase):
+
+    def setUp(self):
+        from clifford.pga import layout, blades
+        self.layout = layout
+        self.blades = blades
+
+    def random_point(self):
+        import numpy as np
+        return self.blades["e123"] + sum(
+            c * self.blades[b] for c, b in zip(np.random.randn(3), ["e023", "e013", "e012"]))
+
+    def test_draw_points(self):
+        gs = GanjaScene()
+        gs.add_objects([self.random_point() for i in range(10)], static=False)
+        with open('test_file.html', 'w') as test_file:
+            test_file.write(generate_full_html(str(gs), sig=self.layout.sig, grid=True, scale=1.0, gl=True))
+        draw(gs, sig=self.layout.sig, grid=True, scale=1.0, gl=True)
+
+    def test_draw_lines(self):
+
+        def random_line():
+            return (self.random_point().dual()^self.random_point().dual()).dual()
+
+        gs = GanjaScene()
+        gs.add_objects([random_line() for i in range(10)], static=False)
+        with open('test_file.html', 'w') as test_file:
+            test_file.write(generate_full_html(str(gs), sig=self.layout.sig, grid=True, scale=1.0, gl=True))
+        draw(gs, sig=self.layout.sig, grid=True, scale=1.0, gl=True)
+
+    def test_draw_planes(self):
+        gs = GanjaScene()
+        gs.add_objects([self.random_point().dual() for i in range(10)], static=False)
+        with open('test_file.html', 'w') as test_file:
+            test_file.write(generate_full_html(str(gs), sig=self.layout.sig, grid=True, scale=1.0, gl=True))
+        draw(gs, sig=self.layout.sig, grid=True, scale=1.0, gl=True)
 
 
 class TestGanjaSceneOps(unittest.TestCase):

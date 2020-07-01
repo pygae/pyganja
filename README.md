@@ -66,4 +66,4 @@ python3 setup.py install
 ```
 
 # TODO
-This is still very much a work in progress, currently it only handles conformal GA
+This is still very much a work in progress, currently it only handles PGA and CGA
