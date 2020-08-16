@@ -246,27 +246,18 @@ def draw(objects, color=Color.DEFAULT, sig=None, *,
             if not new_window:
                 render_notebook_script(objects, **kwargs)
             else:
-                if CEFAVAILABLE:
-                    if browser_window:
-                        render_browser_script(objects, **kwargs)
-                    else:
-                        render_cef_script(objects, **kwargs)
+                if CEFAVAILABLE and not browser_window:
+                    render_cef_script(objects, **kwargs)
                 else:
                     render_browser_script(objects, **kwargs)
         else:
-            if CEFAVAILABLE:
-                if browser_window:
-                    render_browser_script(objects, **kwargs)
-                else:
-                    render_cef_script(objects, **kwargs)
+            if CEFAVAILABLE and not browser_window:
+                render_cef_script(objects, **kwargs)
             else:
                 render_browser_script(objects, **kwargs)
     else:
-        if CEFAVAILABLE:
-            if browser_window:
-                render_browser_script(objects, **kwargs)
-            else:
-                render_cef_script(objects, **kwargs)
+        if CEFAVAILABLE and not browser_window:
+            render_cef_script(objects, **kwargs)
         else:
             render_browser_script(objects, **kwargs)
 
