@@ -241,34 +241,12 @@ def isnotebook():
 def draw(objects, color=Color.DEFAULT, sig=None, *,
          browser_window=False, new_window=False, static=False, **kwargs):
     kwargs = dict(sig=sig, default_color=color, default_static=static, **kwargs)
-    if JUPYTERAVAILABLE:
-        if isnotebook():
-            if not new_window:
-                render_notebook_script(objects, **kwargs)
-            else:
-                if CEFAVAILABLE:
-                    if browser_window:
-                        render_browser_script(objects, **kwargs)
-                    else:
-                        render_cef_script(objects, **kwargs)
-                else:
-                    render_browser_script(objects, **kwargs)
-        else:
-            if CEFAVAILABLE:
-                if browser_window:
-                    render_browser_script(objects, **kwargs)
-                else:
-                    render_cef_script(objects, **kwargs)
-            else:
-                render_browser_script(objects, **kwargs)
+    if JUPYTERAVAILABLE and isnotebook() and not new_window:
+        render_notebook_script(objects, **kwargs)
+    elif CEFAVAILABLE and not browser_window:
+        render_cef_script(objects, **kwargs)
     else:
-        if CEFAVAILABLE:
-            if browser_window:
-                render_browser_script(objects, **kwargs)
-            else:
-                render_cef_script(objects, **kwargs)
-        else:
-            render_browser_script(objects, **kwargs)
+        render_browser_script(objects, **kwargs)
 
 
 def _to_scene_string(objects, default_color=Color.DEFAULT, default_static=False):
