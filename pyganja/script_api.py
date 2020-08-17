@@ -47,8 +47,8 @@ def read_ganja():
     return output
 
 
-def generate_notebook_js(scene, sig=None, grid=True, scale=1.0, gl=True,
-                         default_color=Color.DEFAULT, default_static=False):
+def generate_notebook_js(scene, sig=None, *,
+                         default_color=Color.DEFAULT, default_static=False, **kwargs):
     script_json = _to_scene_string(scene, default_color=default_color, default_static=default_static)
     if sig is not None:
         p = (sig > 0).sum().item()  # convert to json-compatible scalar
@@ -67,12 +67,17 @@ def generate_notebook_js(scene, sig=None, grid=True, scale=1.0, gl=True,
         conformal = False
 
     if (p, q, r) in [(4, 1, 0), (3, 1, 0), (3, 0, 0), (3, 0, 1)]:
-        if p - q == 2:
-            gl = False  # 2d
         opts = dict(
-            p=p, q=q, r=r, gl=gl, conformal=conformal, grid=grid, scale=scale,
-            mv_length=mv_length
+            p=p, q=q, r=r, mv_length=mv_length,
+            graph=dict(
+                conformal=conformal,
+                gl=True,
+                useUnnaturalLineDisplayForPointPairs=True,
+            )
         )
+        if p - q == 2:
+            kwargs['gl'] = False  # 2d
+        opts["graph"].update(kwargs)
         js = """
         // We load ganja.js with requireJS, since `module.exports` / require
         // only work if things are in separate files. In most situations
@@ -95,7 +100,7 @@ def generate_notebook_js(scene, sig=None, grid=True, scale=1.0, gl=True,
                     // convert arrays of floats back to CGA elements.
                     data = data.map(x=>x.length==opts.mv_length?new Element(x):x);
                     // add the graph to the page.
-                    canvas = this.graph(data, {gl: opts.gl, conformal: opts.conformal, grid: opts.grid, scale: opts.scale, useUnnaturalLineDisplayForPointPairs: true});
+                    canvas = this.graph(data, opts.graph);
                     canvas.options.h = h;
                     canvas.options.p = p;
                     // make it big.
@@ -122,7 +127,6 @@ def generate_notebook_js(scene, sig=None, grid=True, scale=1.0, gl=True,
                 a.onclick = screenshot
                 var butnelem = element.append(a);
             });
-
         })(element);
         """
     else:
@@ -185,14 +189,14 @@ def generate_full_html(scene, sig=None, grid=True, scale=1.0, gl=True,
         raise ValueError('Algebra not yet supported')
 
 
-def render_browser_script(scene, sig=None, grid=True, scale=1.0, gl=True, filename=None,
-                          default_color=Color.DEFAULT, default_static=False):
+def render_browser_script(scene, sig=None, *, filename=None,
+                          default_color=Color.DEFAULT, default_static=False, **kwargs):
     """
     If we have no jupyter and no cefpython we will be forced to generate html
     and render that in the users browser
     """
-    html_code = generate_full_html(scene, sig=sig, grid=grid, scale=scale, gl=gl,
-                                   default_color=default_color, default_static=default_static)
+    html_code = generate_full_html(
+        scene, sig=sig, default_color=default_color, default_static=default_static, **kwargs)
     if filename is None:
         hash_object = hashlib.md5(html_code.encode())
         filename = hash_object.hexdigest() + '.html'
@@ -201,22 +205,18 @@ def render_browser_script(scene, sig=None, grid=True, scale=1.0, gl=True, filena
     webbrowser.open(filename)
 
 
-def render_notebook_script(scene, sig=None, grid=True, scale=1.0, gl=True,
-                           default_color=Color.DEFAULT, default_static=False):
+def render_notebook_script(scene, sig=None, **kwargs):
     """
     In a notebook we dont need to start cefpython as we
     are already in the browser!
     """
-    js = generate_notebook_js(scene, sig=sig, grid=grid, scale=scale, gl=gl,
-                              default_color=default_color, default_static=default_static)
+    js = generate_notebook_js(scene, sig=sig, **kwargs)
     display(js)
 
 
-def render_cef_script(scene="", sig=None, grid=True, scale=1.0, gl=True,
-                      default_color=Color.DEFAULT, default_static=False):
+def render_cef_script(scene="", sig=None, **kwargs):
     def render_script():
-        final_url = html_to_data_uri(generate_full_html(scene, sig=sig, grid=grid, scale=scale, gl=gl,
-                                                        default_color=default_color, default_static=default_static))
+        final_url = html_to_data_uri(generate_full_html(scene, sig=sig, **kwargs))
         run_cef_gui(final_url, "pyganja")
     p = Process(target=render_script)
     p.start()
@@ -238,46 +238,37 @@ def isnotebook():
         return False      # Probably standard Python interpreter
 
 
-def draw(objects, color=Color.DEFAULT, sig=None, grid=True, scale=1.0,
-         browser_window=False, new_window=False, static=False, gl=True):
+def draw(objects, color=Color.DEFAULT, sig=None, *,
+         browser_window=False, new_window=False, static=False, **kwargs):
+    kwargs = dict(sig=sig, default_color=color, default_static=static, **kwargs)
     if JUPYTERAVAILABLE:
         if isnotebook():
             if not new_window:
-                render_notebook_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
-                                       default_color=color, default_static=static)
+                render_notebook_script(objects, **kwargs)
             else:
                 if CEFAVAILABLE:
                     if browser_window:
-                        render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
-                                       default_color=color, default_static=static)
+                        render_browser_script(objects, **kwargs)
                     else:
-                        render_cef_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
-                                       default_color=color, default_static=static)
+                        render_cef_script(objects, **kwargs)
                 else:
-                    render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
-                                       default_color=color, default_static=static)
+                    render_browser_script(objects, **kwargs)
         else:
             if CEFAVAILABLE:
                 if browser_window:
-                    render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
-                                       default_color=color, default_static=static)
+                    render_browser_script(objects, **kwargs)
                 else:
-                    render_cef_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
-                                       default_color=color, default_static=static)
+                    render_cef_script(objects, **kwargs)
             else:
-                render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
-                                       default_color=color, default_static=static)
+                render_browser_script(objects, **kwargs)
     else:
         if CEFAVAILABLE:
             if browser_window:
-                render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
-                                       default_color=color, default_static=static)
+                render_browser_script(objects, **kwargs)
             else:
-                render_cef_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
-                                       default_color=color, default_static=static)
+                render_cef_script(objects, **kwargs)
         else:
-            render_browser_script(objects, sig=sig, grid=grid, scale=scale, gl=gl,
-                                       default_color=color, default_static=static)
+            render_browser_script(objects, **kwargs)
 
 
 def _to_scene_string(objects, default_color=Color.DEFAULT, default_static=False):
