@@ -72,8 +72,9 @@ def generate_default_options(sig):
             useUnnaturalLineDisplayForPointPairs=True,
         )
     )
-    if p - q == 2: # 2D
-        opts['gl'] = False
+    if p - q == 2:  # 2D
+        opts['graph']['gl'] = False
+    print(opts)
     return opts
 
 
