@@ -74,7 +74,6 @@ def generate_default_options(sig):
     )
     if p - q == 2:  # 2D
         opts['graph']['gl'] = False
-    print(opts)
     return opts
 
 
