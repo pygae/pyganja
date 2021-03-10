@@ -66,71 +66,68 @@ def generate_notebook_js(scene, sig=None, *,
     else:
         conformal = False
 
-    if (p, q, r) in [(4, 1, 0), (3, 1, 0), (3, 0, 0), (3, 0, 1)]:
-        opts = dict(
-            p=p, q=q, r=r, mv_length=mv_length,
-            graph=dict(
-                conformal=conformal,
-                gl=True,
-                useUnnaturalLineDisplayForPointPairs=True,
-            )
+    opts = dict(
+        p=p, q=q, r=r, mv_length=mv_length,
+        graph=dict(
+            conformal=conformal,
+            gl=True,
+            useUnnaturalLineDisplayForPointPairs=True,
         )
-        if p - q == 2:
-            kwargs['gl'] = False  # 2d
-        opts["graph"].update(kwargs)
-        js = """
-        // We load ganja.js with requireJS, since `module.exports` / require
-        // only work if things are in separate files. In most situations
-        // `module` is already undefined, but in VSCode is is not (gh-46).
-        // Explicitly clearing it makes ganja.js fall back to RequireJS.
-        let module = undefined;
-        """
-        js += read_ganja()
-        js += """
-        // take a closure on element before the next cell replaces it
-        (function(element) {
-            (requirejs||require)(['Algebra'], function(Algebra) {
-                var opts = """ + json.dumps(opts) + """;  // injected from python
-                var output = Algebra({p: opts.p, q: opts.q, r: opts.r, baseType: Float64Array}).inline((opts)=>{
-                    var data = """ + script_json + """;  // injected from python
+    )
+    if p - q == 2:
+        kwargs['gl'] = False  # 2d
+    opts["graph"].update(kwargs)
+    js = """
+    // We load ganja.js with requireJS, since `module.exports` / require
+    // only work if things are in separate files. In most situations
+    // `module` is already undefined, but in VSCode is is not (gh-46).
+    // Explicitly clearing it makes ganja.js fall back to RequireJS.
+    let module = undefined;
+    """
+    js += read_ganja()
+    js += """
+    // take a closure on element before the next cell replaces it
+    (function(element) {
+        (requirejs||require)(['Algebra'], function(Algebra) {
+            var opts = """ + json.dumps(opts) + """;  // injected from python
+            var output = Algebra({p: opts.p, q: opts.q, r: opts.r, baseType: Float64Array}).inline((opts)=>{
+                var data = """ + script_json + """;  // injected from python
 
-                    // When we get a file, we load and display.
-                    var canvas;
-                    var h=0, p=0;
-                    // convert arrays of floats back to CGA elements.
-                    data = data.map(x=>x.length==opts.mv_length?new Element(x):x);
-                    // add the graph to the page.
-                    canvas = this.graph(data, opts.graph);
-                    canvas.options.h = h;
-                    canvas.options.p = p;
-                    // make it big.
-                    canvas.style.width = '100%';
-                    canvas.style.height = '50vh';
-                    return canvas;
-                })(opts);
-                element.append(output);
+                // When we get a file, we load and display.
+                var canvas;
+                var h=0, p=0;
+                // convert arrays of floats back to CGA elements.
+                data = data.map(x=>x.length==opts.mv_length?new Element(x):x);
+                // add the graph to the page.
+                canvas = this.graph(data, opts.graph);
+                canvas.options.h = h;
+                canvas.options.p = p;
+                // make it big.
+                canvas.style.width = '100%';
+                canvas.style.height = '50vh';
+                return canvas;
+            })(opts);
+            element.append(output);
 
-                var a = document.createElement("button");
-                var t = document.createTextNode("\N{FLOPPY DISK} Save");
-                a.appendChild(t);
-                function screenshot(){
-                    //output.width = 1920;  output.height = 1080;
-                    output.update(output.value);
-                    output.toBlob(function(blob) {
-                        var url = URL.createObjectURL(blob);
-                        window.open(url, '_blank');
-                    });
-                }
-                window.addEventListener('resize', function() {
-                    output.update(output.value);
+            var a = document.createElement("button");
+            var t = document.createTextNode("\N{FLOPPY DISK} Save");
+            a.appendChild(t);
+            function screenshot(){
+                //output.width = 1920;  output.height = 1080;
+                output.update(output.value);
+                output.toBlob(function(blob) {
+                    var url = URL.createObjectURL(blob);
+                    window.open(url, '_blank');
                 });
-                a.onclick = screenshot
-                var butnelem = element.append(a);
+            }
+            window.addEventListener('resize', function() {
+                output.update(output.value);
             });
-        })(element);
-        """
-    else:
-        raise ValueError('Algebra not yet supported')
+            a.onclick = screenshot
+            var butnelem = element.append(a);
+        });
+    })(element);
+    """
     return Javascript(js)
 
 
@@ -154,39 +151,36 @@ def generate_full_html(scene, sig=None, grid=True, scale=1.0, gl=True,
     if q!=0:
         conformal = 'true'
 
-    if sig_short in ['4,1,0', '3,0,0', '3,0,1']:
-        if grid:
-            gridstr = 'true'
-        else:
-            gridstr = 'false'
-        scalestr = str(scale)
-
-        script_string = """
-                Algebra("""+sig_short+""",()=>{
-                  var canvas = this.graph((""" + script_json + """).map(x=>x.length=="""+mv_length+"""?new Element(x):x),
-                  {conformal:"""+conformal+""",gl:"""+str(gl).lower()+""",grid:"""+gridstr+""",scale:"""+scalestr+""",useUnnaturalLineDisplayForPointPairs:true});
-                  canvas.style.width = '100vw';
-                  canvas.style.height = '100vh';
-                  document.body.appendChild(canvas);
-                });
-                """
-        full_html = """<!DOCTYPE html>
-        <html lang="en" style="height:100%;">
-        <HEAD>
-            <meta charset="UTF-8">
-            <title>pyganja</title>
-            <SCRIPT>""" + read_ganja() + """</SCRIPT>
-        </HEAD>
-        <BODY style="position:absolute; top:0; bottom:0; right:0; left:0; overflow:hidden;">
-        <SCRIPT>
-            """ + script_string + """
-        </SCRIPT>
-        </BODY>
-        </html>
-        """
-        return full_html
+    if grid:
+        gridstr = 'true'
     else:
-        raise ValueError('Algebra not yet supported')
+        gridstr = 'false'
+    scalestr = str(scale)
+
+    script_string = """
+            Algebra("""+sig_short+""",()=>{
+              var canvas = this.graph((""" + script_json + """).map(x=>x.length=="""+mv_length+"""?new Element(x):x),
+              {conformal:"""+conformal+""",gl:"""+str(gl).lower()+""",grid:"""+gridstr+""",scale:"""+scalestr+""",useUnnaturalLineDisplayForPointPairs:true});
+              canvas.style.width = '100vw';
+              canvas.style.height = '100vh';
+              document.body.appendChild(canvas);
+            });
+            """
+    full_html = """<!DOCTYPE html>
+    <html lang="en" style="height:100%;">
+    <HEAD>
+        <meta charset="UTF-8">
+        <title>pyganja</title>
+        <SCRIPT>""" + read_ganja() + """</SCRIPT>
+    </HEAD>
+    <BODY style="position:absolute; top:0; bottom:0; right:0; left:0; overflow:hidden;">
+    <SCRIPT>
+        """ + script_string + """
+    </SCRIPT>
+    </BODY>
+    </html>
+    """
+    return full_html
 
 
 def render_browser_script(scene, sig=None, *, filename=None,
