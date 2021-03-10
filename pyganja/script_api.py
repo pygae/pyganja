@@ -47,9 +47,7 @@ def read_ganja():
     return output
 
 
-def generate_notebook_js(scene, sig=None, *,
-                         default_color=Color.DEFAULT, default_static=False, **kwargs):
-    script_json = _to_scene_string(scene, default_color=default_color, default_static=default_static)
+def generate_default_options(sig):
     if sig is not None:
         p = (sig > 0).sum().item()  # convert to json-compatible scalar
         q = (sig < 0).sum().item()  # convert to json-compatible scalar
@@ -74,8 +72,39 @@ def generate_notebook_js(scene, sig=None, *,
             useUnnaturalLineDisplayForPointPairs=True,
         )
     )
-    if p - q == 2:
-        kwargs['gl'] = False  # 2d
+    if p - q == 2: # 2D
+        opts['gl'] = False
+    return opts
+
+
+def generate_ganja_script(script_json, opts, height_str, width_str):
+    return """
+    var opts = """ + json.dumps(opts) + """;  // injected from python
+    var output = Algebra({p: opts.p, q: opts.q, r: opts.r, baseType: Float64Array}).inline((opts)=>{
+        var data = """ + script_json + """;  // injected from python
+
+        // When we get a file, we load and display.
+        var canvas;
+        var h=0, p=0;
+        // convert arrays of floats back to CGA elements.
+        data = data.map(x=>x.length==opts.mv_length?new Element(x):x);
+        // add the graph to the page.
+        canvas = this.graph(data, opts.graph);
+        canvas.options.h = h;
+        canvas.options.p = p;
+        // make it big.
+        canvas.style.width = """ + width_str + """;
+        canvas.style.height = """ + height_str + """;
+        return canvas;
+    })(opts);
+    """
+
+
+
+def generate_notebook_js(scene, sig=None, *,
+                         default_color=Color.DEFAULT, default_static=False, **kwargs):
+    script_json = _to_scene_string(scene, default_color=default_color, default_static=default_static)
+    opts = generate_default_options(sig)
     opts["graph"].update(kwargs)
     js = """
     // We load ganja.js with requireJS, since `module.exports` / require
@@ -89,24 +118,11 @@ def generate_notebook_js(scene, sig=None, *,
     // take a closure on element before the next cell replaces it
     (function(element) {
         (requirejs||require)(['Algebra'], function(Algebra) {
-            var opts = """ + json.dumps(opts) + """;  // injected from python
-            var output = Algebra({p: opts.p, q: opts.q, r: opts.r, baseType: Float64Array}).inline((opts)=>{
-                var data = """ + script_json + """;  // injected from python
-
-                // When we get a file, we load and display.
-                var canvas;
-                var h=0, p=0;
-                // convert arrays of floats back to CGA elements.
-                data = data.map(x=>x.length==opts.mv_length?new Element(x):x);
-                // add the graph to the page.
-                canvas = this.graph(data, opts.graph);
-                canvas.options.h = h;
-                canvas.options.p = p;
-                // make it big.
-                canvas.style.width = '100%';
-                canvas.style.height = '50vh';
-                return canvas;
-            })(opts);
+    """
+    height_str = "\'50vh\'"
+    width_str = "\'100%\'"
+    js += generate_ganja_script(script_json, opts, height_str, width_str)
+    js += """
             element.append(output);
 
             var a = document.createElement("button");
@@ -131,40 +147,17 @@ def generate_notebook_js(scene, sig=None, *,
     return Javascript(js)
 
 
-def generate_full_html(scene, sig=None, grid=True, scale=1.0, gl=True,
-                       default_color=Color.DEFAULT, default_static=False):
+def generate_full_html(scene, sig=None, *,
+                         default_color=Color.DEFAULT, default_static=False, **kwargs):
     script_json = _to_scene_string(scene, default_color=default_color, default_static=default_static)
-    if sig is not None:
-        p = (sig > 0).sum()
-        q = (sig < 0).sum()
-        r = len(sig) - p - q
-    else:
-        p = 4
-        q = 1
-        r = 0
-    sig_short = '%i,%i,%i' % (p, q, r)
-    print(sig_short)
-    mv_length = str(2 ** (p + q + r))
+    opts = generate_default_options(sig)
+    opts["graph"].update(kwargs)
 
-    # not the best way to test conformal, as it prevents non-euclidean  geometry
-    conformal = 'false'
-    if q!=0:
-        conformal = 'true'
-
-    if grid:
-        gridstr = 'true'
-    else:
-        gridstr = 'false'
-    scalestr = str(scale)
-
-    script_string = """
-            Algebra("""+sig_short+""",()=>{
-              var canvas = this.graph((""" + script_json + """).map(x=>x.length=="""+mv_length+"""?new Element(x):x),
-              {conformal:"""+conformal+""",gl:"""+str(gl).lower()+""",grid:"""+gridstr+""",scale:"""+scalestr+""",useUnnaturalLineDisplayForPointPairs:true});
-              canvas.style.width = '100vw';
-              canvas.style.height = '100vh';
-              document.body.appendChild(canvas);
-            });
+    height_str = "\'100vh\'"
+    width_str = "\'100vw\'"
+    script_string = generate_ganja_script(script_json, opts, height_str, width_str)
+    script_string +="""
+            document.body.appendChild(output);
             """
     full_html = """<!DOCTYPE html>
     <html lang="en" style="height:100%;">
