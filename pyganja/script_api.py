@@ -93,8 +93,8 @@ def generate_ganja_script(script_json, opts, height_str, width_str):
         canvas.options.h = h;
         canvas.options.p = p;
         // make it big.
-        canvas.style.width = """ + width_str + """;
-        canvas.style.height = """ + height_str + """;
+        canvas.style.width = """ + json.dumps(width_str) + """;
+        canvas.style.height = """ + json.dumps(height_str) + """;
         return canvas;
     })(opts);
     """
@@ -119,9 +119,7 @@ def generate_notebook_js(scene, sig=None, *,
     (function(element) {
         (requirejs||require)(['Algebra'], function(Algebra) {
     """
-    height_str = "\'50vh\'"
-    width_str = "\'100%\'"
-    js += generate_ganja_script(script_json, opts, height_str, width_str)
+    js += generate_ganja_script(script_json, opts, '50vh', '100%')
     js += """
             element.append(output);
 
@@ -148,14 +146,12 @@ def generate_notebook_js(scene, sig=None, *,
 
 
 def generate_full_html(scene, sig=None, *,
-                         default_color=Color.DEFAULT, default_static=False, **kwargs):
+                       default_color=Color.DEFAULT, default_static=False, **kwargs):
     script_json = _to_scene_string(scene, default_color=default_color, default_static=default_static)
     opts = generate_default_options(sig)
     opts["graph"].update(kwargs)
 
-    height_str = "\'100vh\'"
-    width_str = "\'100vw\'"
-    script_string = generate_ganja_script(script_json, opts, height_str, width_str)
+    script_string = generate_ganja_script(script_json, opts, '100vh', '100vw')
     script_string +="""
             document.body.appendChild(output);
             """
