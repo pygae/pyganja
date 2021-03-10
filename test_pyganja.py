@@ -80,6 +80,77 @@ class TestPGA3DDrawing(unittest.TestCase):
         draw(gs, sig=self.layout.sig, grid=True, scale=1.0, gl=True)
 
 
+class TestPGA2DDrawing(unittest.TestCase):
+
+    def setUp(self):
+        from clifford import Cl
+        layout, blades = Cl(2, 0, 1, firstIdx=0)
+        self.layout = layout
+        self.blades = blades
+
+    def random_point(self):
+        import numpy as np
+        return sum(c * self.blades[b] + self.blades['e0'] for c, b in zip(np.random.randn(2), ["e1", "e2"])).dual()
+
+    def test_draw_points(self):
+        gs = GanjaScene()
+        gs.add_objects([self.random_point() for i in range(10)], static=False)
+        print(self.random_point())
+        with open('test_file.html', 'w') as test_file:
+            test_file.write(generate_full_html(str(gs), sig=self.layout.sig, grid=True, scale=1.0, gl=False))
+        draw(gs, sig=self.layout.sig, grid=True, scale=1.0, gl=False)
+
+    def test_draw_lines(self):
+        def random_line():
+            return (self.random_point().dual()^self.random_point().dual()).dual()
+        gs = GanjaScene()
+        gs.add_objects([random_line() for i in range(10)], static=False)
+        with open('test_file.html', 'w') as test_file:
+            test_file.write(generate_full_html(str(gs), sig=self.layout.sig, grid=True, scale=1.0, gl=False))
+        draw(gs, sig=self.layout.sig, grid=True, scale=1.0, gl=False)
+
+
+class TestCGA2DDrawing(unittest.TestCase):
+
+    def setUp(self):
+        from clifford.g2c import layout, blades, einf, up
+        self.layout = layout
+        self.blades = blades
+        self.einf = einf
+        self.up = up
+
+    def random_point(self):
+        import numpy as np
+        return self.up(sum(c * self.blades[b] for c, b in zip(np.random.randn(2), ["e1", "e2"])))
+
+    def test_draw_points(self):
+        gs = GanjaScene()
+        gs.add_objects([self.random_point() for i in range(10)], static=False)
+        print(self.random_point())
+        with open('test_file.html', 'w') as test_file:
+            test_file.write(generate_full_html(str(gs), sig=self.layout.sig, grid=True, scale=1.0))
+        draw(gs, sig=self.layout.sig, grid=True, scale=1.0)
+
+    def test_draw_lines(self):
+        def random_line():
+            return self.random_point()^self.random_point()^self.einf
+        gs = GanjaScene()
+        gs.add_objects([random_line() for i in range(10)], static=False)
+        with open('test_file.html', 'w') as test_file:
+            test_file.write(generate_full_html(str(gs), sig=self.layout.sig, grid=True, scale=1.0))
+        draw(gs, sig=self.layout.sig, grid=True, scale=1.0)
+
+    def test_draw_circles(self):
+        def random_circle():
+            return self.random_point()^self.random_point()^self.random_point()
+        gs = GanjaScene()
+        gs.add_objects([random_circle() for i in range(10)], static=False)
+        with open('test_file.html', 'w') as test_file:
+            test_file.write(generate_full_html(str(gs), sig=self.layout.sig, grid=True, scale=1.0))
+        draw(gs, sig=self.layout.sig, grid=True, scale=1.0)
+
+
+
 class TestGanjaSceneOps(unittest.TestCase):
     def test_scene_addition(self):
         from clifford.tools.g3c import random_line, random_circle
