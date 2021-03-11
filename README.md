@@ -1,4 +1,6 @@
 # pyganja
+[![PyPI](https://badgen.net/pypi/v/pyganja)](https://pypi.org/project/pyganja/)
+
 Visualisation library for geometric algebra with cefpython and ganja.js
 
 This is a module for visualing Geometric Algebra from scripts and also from jupyter notebooks, 
