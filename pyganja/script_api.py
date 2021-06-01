@@ -107,14 +107,18 @@ def generate_notebook_js(scene, sig=None, *,
     opts = generate_default_options(sig)
     opts["graph"].update(kwargs)
     js = """
-    // We load ganja.js with requireJS, since `module.exports` / require
-    // only work if things are in separate files. In most situations
-    // `module` is already undefined, but in VSCode is is not (gh-46).
-    // Explicitly clearing it makes ganja.js fall back to RequireJS.
-    let module = undefined;
+    // Wrap the whole thing in a function to prevent local variables persisting
+    // between cells. Notably, `let module` is an error if repeated.
+    (function() {
+        // We load ganja.js with requireJS, since `module.exports` / require
+        // only work if things are in separate files. In most situations
+        // `module` is already undefined, but in VSCode is is not (gh-46).
+        // Explicitly clearing it makes ganja.js fall back to RequireJS.
+        let module = undefined;
     """
     js += read_ganja()
     js += """
+    })();
     // take a closure on element before the next cell replaces it
     (function(element) {
         (requirejs||require)(['Algebra'], function(Algebra) {
